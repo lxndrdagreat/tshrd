@@ -1,0 +1,82 @@
+from tshrd.characters import create_player
+from tshrd.mapping import depth_first_build
+from enum import Enum, auto
+
+
+class GameState(Enum):
+    ROOM = auto()
+    MOVE_NORTH = auto()
+    MOVE_SOUTH = auto()
+    MOVE_EAST = auto()
+    MOVE_WEST = auto()
+    ENCOUNTER_SHRINE = auto()
+    ENCOUNTER_TREASURE = auto()
+    ENCOUNTER_MONSTER = auto()
+    ENCOUNTER_TRAP = auto()
+    ENCOUNTER_STAIRS = auto()
+    INVENTORY = auto()
+    FLED_ENCOUNTER = auto()
+    CLOSE = auto()
+    GAME_OVER = auto()
+    GAME_RESTART = auto()
+    MAP = auto()
+
+
+class GameData:
+    def __init__(self, player_name: str='Player'):
+
+        self._running = False
+        self.current_map = None
+        self.current_room = None
+        self.previous_room = None
+        self.current_level = 0
+
+        self.the_player = create_player(player_name)
+
+        self.state = GameState.ROOM
+        self._running = True
+
+        self._log = []
+
+        self.build_map()
+
+        self.log('Your adventure begins in the first room on the first floor of a deadly dungeon.')
+
+    def build_map(self):
+        self.current_level += 1
+        self.current_map = depth_first_build(4)
+        self.current_map.generate_encounters()
+        self.current_map.calculate_bounds(True)
+
+        self.current_room = self.current_map.rooms[0]
+        self.current_room.discovered = True
+        self.previous_room = None
+
+        if self.current_level > 1:
+            your_state = 'are healthy'
+            if self.the_player.health <= self.the_player.max_health / 4:
+                your_state = 'are heavily injured'
+            elif self.the_player.health <= self.the_player.max_health * 0.75:
+                your_state = 'are injured'
+            elif self.the_player.health < self.the_player.max_health:
+                your_state = 'have minor injuries'
+            self.log(f'You have reached the next level of the dungeon.')
+            self.log(f'You {your_state}.')
+            self.log(f'You have {self.the_player.food} remaining food.')
+
+    def advance_turn(self):
+        if self.the_player.food > 0:
+            self.the_player.food -= 1
+            text = 'You eat 1 food.'
+            if self.the_player.food < 10:
+                text += ' You are running low on food.'
+            self.log(text)
+            return text
+        else:
+            self.the_player.health -= 1
+            text = 'You are out of food and are starving. You lose 1 health.'
+            self.log(text)
+            return text
+
+    def log(self, text):
+        self._log.append(text)
