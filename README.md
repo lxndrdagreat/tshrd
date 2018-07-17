@@ -33,3 +33,27 @@ up to you).
 
     python -m tshrd
     
+## How to Play
+
+*Most of this section is still being written.*
+
+### Key Bindings
+
+Key bindings are somewhat situational, changing depending on what the active
+state is. However, here are some common ones:
+
+**Arrow keys:**
+
+Moving between rooms and scrolling the map in the map viewer.
+
+**Escape:**
+
+Exits the game (in most cases).
+
+**i:**
+
+Opens the character's inventory screen.
+
+**y/n:**
+
+Responding yes/no (confirm/deny, etc.) for prompts.
