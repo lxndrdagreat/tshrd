@@ -121,8 +121,8 @@ class MapInformation:
         )
 
         self.size = (
-            max_x - min_x,
-            max_y - min_y
+            max_x - min_x + 1,
+            max_y - min_y + 1
         )
 
     def print_with_size(self, room_size: int=4, spacing: int=2, current_room: int=None):
