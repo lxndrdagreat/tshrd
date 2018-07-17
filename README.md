@@ -37,6 +37,11 @@ up to you).
 
 *Most of this section is still being written.*
 
+### Goal
+
+The goal is to get as far in the dungeon as you can before you get killed by
+a monster or a trap or you starve to death.
+
 ### Key Bindings
 
 Key bindings are somewhat situational, changing depending on what the active
