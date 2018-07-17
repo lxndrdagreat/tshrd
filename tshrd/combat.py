@@ -16,11 +16,10 @@ def do_attack(attacker: Character, defender: Character) -> AttackResult:
     defenses = 0
     did_crit = False
     attack_result = AttackResult()
-    
-    # TODO get these from the character
-    critical_chance = 1
-    attack_chance = 75
-    defense_chance = 10
+
+    critical_chance = attacker.crit_chance
+    attack_chance = attacker.hit_chance
+    defense_chance = defender.block_chance
 
     for i in range(0, attacker.power):
         # roll a d100
@@ -38,7 +37,7 @@ def do_attack(attacker: Character, defender: Character) -> AttackResult:
 
     damage = 0
 
-    # TODO: decide how crit damage applies
+    # If the attacker scored a critical hit, double the attacks value
     if did_crit:
         attacks *= 2
 

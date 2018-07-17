@@ -1,5 +1,4 @@
-import random
-from tshrd.inventory import Inventory, Item, Weapon, Armor
+from tshrd.inventory import Inventory, Weapon, Armor
 
 
 class Character(object):
@@ -24,7 +23,7 @@ class Character(object):
     def reset(self):
         self.health = self.max_health
 
-    def grant_experience(self, amount):
+    def grant_experience(self, amount: int):
         self.experience += amount
         if self.experience >= self.experience_to_next_level:
             self.level_up()
@@ -33,19 +32,25 @@ class Character(object):
         self.level += 1
         self.experience_to_next_level = self.experience_to_next_level * 1.5
 
-    def take_damage(self, amount):
+    def take_damage(self, amount: int) -> int:
         amount = amount - self.get_block()
         self.health -= amount
         return amount
 
-    def get_attack_power(self):
-        return float(self.power) * (self.weapon.multiplier() if self.weapon else random.uniform(0.85, 1.15))
-
-    def get_block(self):
-        return float(self.block) * (self.armor.multiplier() if self.armor else 1.0)
-
-    def heal(self, amount):
+    def heal(self, amount: int):
         self.health = min(self.max_health, self.health + amount)
+
+    @property
+    def crit_chance(self) -> int:
+        return 1
+
+    @property
+    def hit_chance(self) -> int:
+        return 75
+
+    @property
+    def block_chance(self) -> int:
+        return 10
 
 
 def create_player(name: str='Player') -> Character:
