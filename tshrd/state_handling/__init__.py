@@ -1,6 +1,7 @@
 from tshrd.characters import create_player
 from tshrd.mapping import depth_first_build
 from enum import Enum, auto
+import tdl
 
 
 class GameState(Enum):
@@ -32,6 +33,9 @@ class GameData:
         self.current_level = 0
 
         self.the_player = create_player(player_name)
+
+        self.room_draw_width = 9
+        self.room_draw_height = 9
 
         self.state = GameState.ROOM
         self._running = True
@@ -78,5 +82,18 @@ class GameData:
             self.log(text)
             return text
 
-    def log(self, text):
-        self._log.append(text)
+    def log(self, text: str='\n', fg=(255, 255, 255)):
+        self._log.append((text, fg))
+
+    def draw_log(self, root_console: tdl.Console):
+        log_width = root_console.width
+        log_height = 20
+        log_y = root_console.height - 3 - log_height
+        log = tdl.Console(log_width, log_height)
+        log.set_colors((255, 255, 255), (50, 50, 50))
+        log.clear()
+        log.set_mode('scroll')
+        for entry in self._log:
+            log.print_str(entry[0])
+            log.print_str('\n')
+        root_console.blit(log, 0, log_y)

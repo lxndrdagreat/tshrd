@@ -12,8 +12,8 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     # draw the room
     if game.current_room:
         # odd number of tiles makes "centering" easier
-        room_draw_width = 9
-        room_draw_height = 9
+        room_draw_width = game.room_draw_width
+        room_draw_height = game.room_draw_height
 
         top = 5
         left = 5
@@ -59,17 +59,7 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
                 root_console.draw_char(left + center_x, top + center_y, game.current_room.monster.tile, bg=None, fg=(255, 255, 255))
 
     # draw the log
-    log_width = root_console.width
-    log_height = 20
-    log_y = root_console.height - 3 - log_height
-    log = tdl.Console(log_width, log_height)
-    log.set_colors((255, 255, 255), (50, 50, 50))
-    log.clear()
-    log.set_mode('scroll')
-    for line in game._log:
-        log.print_str(line)
-        log.print_str('\n')
-    root_console.blit(log, 0, log_y)
+    game.draw_log(root_console)
 
     tdl.flush()
 
