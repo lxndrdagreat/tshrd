@@ -31,5 +31,5 @@ up to you).
 
 *Finally,*
 
-    python tshrd
+    python -m tshrd
     

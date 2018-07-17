@@ -5,10 +5,16 @@ from tshrd.utils import WindowClosedException
 import tdl
 import os
 import random
+import sys
 
 
 def start():
-    random.seed(42)
+    if len(sys.argv) > 1:
+        try:
+            seed = int(sys.argv[1])
+            random.seed(seed)
+        except ValueError as e:
+            print(f'Invalid seed argument: {sys.argv[1]}')
 
     active_game = None
     active_state = GameState.GAME_RESTART
