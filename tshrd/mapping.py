@@ -1,9 +1,9 @@
 import random
-from utils import weighted_choice
+from tshrd.utils import weighted_choice
 
 
-class Room(object):
-    def __init__(self, x, y, depth=0):
+class Room:
+    def __init__(self, x: int, y: int, depth: int=0):
         self.x = x
         self.y = y
         self.depth = depth
@@ -34,7 +34,19 @@ class Room(object):
         # Has the player seen this room
         self.discovered = False
 
-    def connect_by_deltas(self, dx, dy, other_room):
+    def neighbor_list(self) -> list:
+        neighbors = []
+        if self.north:
+            neighbors.append(self.north)
+        if self.south:
+            neighbors.append(self.south)
+        if self.east:
+            neighbors.append(self.east)
+        if self.west:
+            neighbors.append(self.west)
+        return neighbors
+
+    def connect_by_deltas(self, dx: int, dy: int, other_room):
         if dy == -1:
             self.north = other_room
             self.tried_north = True
@@ -60,23 +72,26 @@ class Room(object):
             other_room.west = self
             other_room.tried_west = True
 
+    def __repr__(self):
+        return f'<tshrd.mapping.Room {self.encounter}>'
 
-class MapInformation(object):
-    def __init__(self):
+
+class MapInformation:
+    def __init__(self, encounter_list: list=(
+            ('empty', 0.65, True),
+            ('shrine', 0.6, False),
+            ('monster', 1.3, True),
+            ('treasure', 1.1, True),
+            ('trap', 1.1, True)
+    )):
         self.rooms = []
         self.bounds = (0, 0, 0, 0)
         self.size = (0, 0)
         self.depth = 1
 
-        self.encounters = [
-            ('empty', 0.65),
-            ('shrine', 0.8),
-            ('monster', 1.3),
-            ('treasure', 1.1),
-            ('trap', 0.9)
-        ]
+        self.encounters = encounter_list
 
-    def calculate_bounds(self, reposition=False):
+    def calculate_bounds(self, reposition: bool=False):
         min_x = 0
         min_y = 0
         max_x = 0
@@ -110,11 +125,10 @@ class MapInformation(object):
             max_y - min_y
         )
 
-    def print_with_size(self, room_size=4, spacing=2, current_room=None):
+    def print_with_size(self, room_size: int=4, spacing: int=2, current_room: int=None):
         self.calculate_bounds()
         width = (room_size + (spacing * 2)) * self.size[0]
         height = (room_size + (spacing * 2)) * self.size[1]
-        # print("{} x {}".format(width, height))
 
         grid = []
 
@@ -182,10 +196,19 @@ class MapInformation(object):
                 room.encounter = 'stairs'
                 continue
 
-            room.encounter = weighted_choice(self.encounters)
+            neighbor_encounters = [r.encounter for r in room.neighbor_list() if r.encounter is not None]
+
+            allowed_encounters = [encounter[:-1] for encounter
+                                  in self.encounters
+                                  if encounter[0] not in neighbor_encounters or encounter[2] is True]
+
+            if len(allowed_encounters) > 0:
+                room.encounter = weighted_choice(allowed_encounters)
+            else:
+                room.encounter = 'empty'
 
 
-def connect_rooms(start, end, grid, room_size):
+def connect_rooms(start: tuple, end: tuple, grid: list, room_size: int):
 
     x = start[0]
     y = start[1]
@@ -214,7 +237,7 @@ def connect_rooms(start, end, grid, room_size):
             y -= 1
 
 
-def depth_first_build(max_depth=4):
+def depth_first_build(max_depth: int=4) -> MapInformation:
 
     # create starting room
 
@@ -302,95 +325,3 @@ def depth_first_build(max_depth=4):
             stack.append(next_room)
 
     return the_map
-
-
-def build_test_html():
-    the_map = depth_first_build(50)
-
-    the_map.calculate_bounds(True)
-
-    the_map.generate_encounters()
-
-    room_size = 1
-
-    spacing_pixels = 10
-
-    room_size_pixels = room_size * 25
-
-    # the_map.print_with_size()
-
-    with open('template.html', 'r') as template_file:
-        html = template_file.read()
-
-    lines = []
-
-    for room in the_map.rooms:
-        room_x = room.x * (room_size_pixels + spacing_pixels)
-        room_y = room.y * (room_size_pixels + spacing_pixels)
-        extra_classes = ''
-        if room.encounter and room.encounter == 'start':
-            extra_classes = 'start'
-        elif room.encounter and room.encounter == 'monster':
-            extra_classes = 'encounter monster'
-        elif room.encounter and room.encounter == 'stairs':
-            extra_classes = 'end'
-        elif room.encounter and room.encounter == 'trap':
-            extra_classes = 'encounter trap'
-        elif room.encounter and room.encounter == 'shrine':
-            extra_classes = 'encounter shrine'
-        elif room.encounter and room.encounter == 'treasure':
-            extra_classes = 'encounter treasure'
-        line = '<div class="room {}" style="left: {}px; top: {}px; width: {}px; height: {}px;"></div>'.format(
-            extra_classes,
-            room_x,
-            room_y,
-            room_size_pixels,
-            room_size_pixels)
-        lines.append(line)
-
-        if room.north:
-            hall = '<div class="hall ns" style="left: {}px; top: {}px; width: {}px; height: {}px;"></div>'.format(
-                room_x + (int(room_size_pixels * 0.45)),
-                room_y - spacing_pixels,
-                int(room_size_pixels * 0.1),
-                spacing_pixels
-            )
-            lines.append(hall)
-
-        if room.south:
-            hall = '<div class="hall ns" style="left: {}px; top: {}px; width: {}px; height: {}px;"></div>'.format(
-                room_x + (int(room_size_pixels * 0.45)),
-                room_y + room_size_pixels,
-                int(room_size_pixels * 0.1),
-                spacing_pixels
-            )
-            lines.append(hall)
-
-        if room.east:
-            hall = '<div class="hall ew" style="left: {}px; top: {}px; width: {}px; height: {}px;"></div>'.format(
-                room_x + room_size_pixels,
-                room_y + (int(room_size_pixels * 0.45)),
-                spacing_pixels,
-                int(room_size_pixels * 0.1)
-            )
-            lines.append(hall)
-
-        if room.west:
-            hall = '<div class="hall ew" style="left: {}px; top: {}px; width: {}px; height: {}px;"></div>'.format(
-                room_x - spacing_pixels,
-                room_y + (int(room_size_pixels * 0.45)),
-                spacing_pixels,
-                int(room_size_pixels * 0.1)
-            )
-            lines.append(hall)
-
-    all_parts = ''.join(lines)
-
-    html = html.replace('{ DATA }', all_parts)
-
-    with open('output.html', 'w') as output_file:
-        output_file.write(html)
-
-if __name__ == '__main__':
-
-    build_test_html()
