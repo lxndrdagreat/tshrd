@@ -43,12 +43,14 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     root_console.draw_str(x, y, '# Stairs', bg=None, fg=legend_scheme['stairs'])
     y += 1
     root_console.draw_str(x, y, '# Empty', bg=None, fg=legend_scheme['empty'])
+    y += 1
+    root_console.draw_str(x, y, '@ Player', bg=None, fg=(255, 255, 255))
 
     # bottom bar
     root_console.draw_rect(0, root_console.height - 3, root_console.width, 3, None, bg=(200, 200, 200))
     root_console.draw_str(1, root_console.height - 2, '[ESC] back', fg=(0, 0, 0), bg=None)
     root_console.draw_str(15, root_console.height - 2, '[Arrow Keys] scroll map', fg=(0, 0, 0), bg=None)
-    root_console.draw_str(30, root_console.height - 2, '[Enter] center map', fg=(0, 0, 0), bg=None)
+    root_console.draw_str(50, root_console.height - 2, '[Enter] center map', fg=(0, 0, 0), bg=None)
 
     map_center_x = game.current_room.x * (room_size + spacing) + spacing
     map_center_y = game.current_room.y * (room_size + spacing) + spacing
