@@ -48,7 +48,7 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         elif game.current_room.encounter == 'trap':
             return GameState.ENCOUNTER_TRAP
         elif game.current_room.encounter == 'stairs':
-            return GameState.ENCOUNTER_STAIRS
+            return GameState.ROOM
     return GameState.ROOM
 
 

@@ -17,8 +17,8 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
         top = 5
         left = 5
-        center_x = math.floor(room_draw_width / 2)
-        center_y = math.floor(room_draw_height / 2)
+        center_x = int(math.floor(room_draw_width / 2))
+        center_y = int(math.floor(room_draw_height / 2))
 
         for x in range(0, room_draw_width):
             for y in range(0, room_draw_height):
@@ -58,6 +58,9 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             if game.current_room.encounter == 'monster':
                 root_console.draw_char(left + center_x, top + center_y, game.current_room.monster.tile, bg=None, fg=(255, 255, 255))
 
+            elif game.current_room.encounter == 'stairs':
+                game.log('You find stairs to the next level! Press [ENTER] to advance.', (0, 200, 235))
+
     # draw the log
     game.draw_log(root_console)
 
@@ -69,6 +72,7 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         'DOWN',
         'LEFT',
         'RIGHT',
+        'ENTER',
         'm'
     ])
 
@@ -84,10 +88,13 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     elif user_input == 'RIGHT':
         return GameState.MOVE_EAST
 
-    if user_input == 'ESCAPE':
+    elif user_input == 'ESCAPE':
         return GameState.CLOSE
 
-    if user_input == 'm':
+    elif user_input == 'm':
         return GameState.MAP
+
+    elif user_input == 'ENTER':
+        return GameState.NEXT_LEVEL
 
     return GameState.ROOM
