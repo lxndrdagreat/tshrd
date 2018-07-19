@@ -94,6 +94,7 @@ class GameData:
         log.clear()
         log.set_mode('scroll')
         for entry in self._log:
+            log.set_colors(fg=entry[1])
             log.print_str(entry[0])
             log.print_str('\n')
         root_console.blit(log, 0, log_y)
