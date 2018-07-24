@@ -156,7 +156,7 @@ LOOT_TABLE_BY_LEVEL = (
 )
 
 
-def generate_random_loot(level, num_items=1):
+def generate_random_loot(level, num_items=1) -> list:
     loot = []
 
     gold_amount = 0
