@@ -16,8 +16,10 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             game.the_player.food += 1
         elif loot.name == 'Gold':
             game.log(f'+{loot}', (255, 255, 0))
+            game.the_player.inventory.add_item(loot)
         else:
             game.log(f'+1 {loot}', (255, 255, 0))
+            game.the_player.inventory.add_item(loot)
     game.current_room.encountered = True
 
     return GameState.ROOM

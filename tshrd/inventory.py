@@ -10,11 +10,24 @@ ARMORS = ('Chain Mail', 'Plate Mail', 'Scale Mail', 'Leather Jerkin', 'Cuirass')
 
 class Inventory(object):
     def __init__(self):
-        self.items = []
+        self._items = []
+
+    @property
+    def items(self):
+        return self._items
+
+    def add_item(self, item):
+        if item not in self._items:
+            self._items.append(item)
+
+    def add_items(self, items):
+        for item in items:
+            if item not in self._items:
+                self._items.append(item)
 
 
 class Item(object):
-    def __init__(self, name, description=None):
+    def __init__(self, name: str, description: str=None):
         self.name = name
         self.description = description
         self.value = 0
@@ -43,7 +56,7 @@ class Item(object):
 
 
 class Gold(Item):
-    def __init__(self, amount):
+    def __init__(self, amount: int):
         Item.__init__(self, 'Gold')
 
         self.amount = amount
@@ -54,7 +67,7 @@ class Gold(Item):
 
 
 class Weapon(Item):
-    def __init__(self, name, description=None):
+    def __init__(self, name: str, description: str=None):
         Item.__init__(self, name, description)
 
         self._equipable = True
@@ -70,7 +83,7 @@ class Weapon(Item):
         return random.uniform(self._multiplier_min, self._multiplier_max)
 
 
-def generate_random_weapon(level):
+def generate_random_weapon(level: int) -> Weapon:
     name = '{} {} {}'.format(random.choice(PREFIXES), random.choice(WEAPONS), random.choice(SUFFIXES)).strip()
 
     weapon = Weapon(name)
@@ -79,7 +92,7 @@ def generate_random_weapon(level):
 
 
 class Armor(Item):
-    def __init__(self, name, description=None):
+    def __init__(self, name: str, description: str=None):
         Item.__init__(self, name, description)
 
         self._equipable = True
@@ -95,7 +108,7 @@ class Armor(Item):
         return random.uniform(self._multiplier_min, self._multiplier_max)
 
 
-def generate_random_armor(level):
+def generate_random_armor(level: int) -> Armor:
     name = '{} {} {}'.format(random.choice(PREFIXES), random.choice(ARMORS), random.choice(SUFFIXES)).strip()
 
     armor = Armor(name)
@@ -104,7 +117,7 @@ def generate_random_armor(level):
 
 
 class Potion(Item):
-    def __init__(self, name, level, description=None):
+    def __init__(self, name: str, level: str, description: str=None):
         Item.__init__(self, name, description)
 
         self._activate_in_combat = True
@@ -122,7 +135,7 @@ class Potion(Item):
 
 
 class HealthPotion(Potion):
-    def __init__(self, level):
+    def __init__(self, level: str):
         Potion.__init__(self, 'Health Potion', level)
 
     def activate(self, target):
@@ -156,7 +169,7 @@ LOOT_TABLE_BY_LEVEL = (
 )
 
 
-def generate_random_loot(level, num_items=1) -> list:
+def generate_random_loot(level: int, num_items: int=1) -> list:
     loot = []
 
     gold_amount = 0

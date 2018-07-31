@@ -61,6 +61,21 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             elif game.current_room.encounter == 'stairs':
                 game.log('You find stairs to the next level! Press [ENTER] to advance.', (0, 200, 235))
 
+    # draw info bar
+    info_con = tdl.Console(int(root_console.width / 2), root_console.height - 21)
+    info_con.set_colors(fg=(220, 220, 220), bg=(0, 0, 50))
+    info_con.clear()
+    info_con.draw_str(1, 1, 'MOVE:')
+    info_con.draw_str(1, 2, '[UP] North')
+    info_con.draw_str(1, 3, '[DOWN] South')
+    info_con.draw_str(1, 4, '[RIGHT] East')
+    info_con.draw_str(1, 5, '[LEFT] West')
+    info_con.draw_str(1, 7, 'MENU:')
+    info_con.draw_str(1, 8, '[m] Map')
+    info_con.draw_str(1, 9, '[i] Inventory')
+    info_con.draw_str(1, 10, '[ESC] Quit')
+    root_console.blit(info_con, int(root_console.width / 2), 0)
+
     # draw the log
     game.draw_log(root_console)
 
