@@ -88,6 +88,7 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         'LEFT',
         'RIGHT',
         'ENTER',
+        'i',
         'm'
     ])
 
@@ -108,6 +109,9 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
     elif user_input == 'm':
         return GameState.MAP
+
+    elif user_input == 'i':
+        return GameState.INVENTORY
 
     elif user_input == 'ENTER':
         return GameState.NEXT_LEVEL
