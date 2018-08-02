@@ -15,10 +15,10 @@ class Character(object):
         self.experience_to_next_level = 0
         self.level = 1
 
-        self.weapon = None
-        self.armor = None
+        self.weapon: Weapon = None
+        self.armor: Armor = None
 
-        self.inventory = Inventory()
+        self.inventory: Inventory = Inventory()
 
     def reset(self):
         self.health = self.max_health
