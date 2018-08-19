@@ -8,24 +8,6 @@ WEAPONS = ('Sword', 'Dagger', 'Staff', 'Hammer', 'Mace', 'Flail')
 ARMORS = ('Chain Mail', 'Plate Mail', 'Scale Mail', 'Leather Jerkin', 'Cuirass')
 
 
-class Inventory(object):
-    def __init__(self):
-        self._items = []
-
-    @property
-    def items(self):
-        return self._items
-
-    def add_item(self, item):
-        if item not in self._items:
-            self._items.append(item)
-
-    def add_items(self, items):
-        for item in items:
-            if item not in self._items:
-                self._items.append(item)
-
-
 class Item(object):
     def __init__(self, name: str, description: str=None):
         self.name = name
@@ -35,8 +17,10 @@ class Item(object):
         # use cases
         self._activate_in_combat = False
         self._activate_outside_encounter = False
+        self._activate_on_player = False
+        self._activate_on_monster = False
 
-        # equipability (most items are not)
+        # is the item able to be equipped (most items are not)
         self._equipable = False
 
     def is_equipable(self):
@@ -48,7 +32,13 @@ class Item(object):
     def can_activate_outside_encounter(self):
         return self._activate_outside_encounter
 
-    def activate(self, target):
+    def can_activate_on_player(self):
+        return self._activate_on_player
+
+    def can_activate_on_monster(self):
+        return self._activate_on_monster
+
+    def activate(self, target) -> str:
         pass
 
     def __repr__(self):
@@ -130,15 +120,13 @@ class Potion(Item):
     def reset(self):
         self.uses = 1
 
-    def activate(self, target):
-        pass
-
 
 class HealthPotion(Potion):
     def __init__(self, level: str):
         Potion.__init__(self, 'Health Potion', level)
+        self._activate_on_player = True
 
-    def activate(self, target):
+    def activate(self, target) -> str:
         amount = 3
         if self.level == 'medium':
             amount = 5
@@ -146,7 +134,30 @@ class HealthPotion(Potion):
             amount = 10
         elif self.level == 'mega':
             amount = 15
-        target.heal(amount)
+        amount_healed = target.heal(amount)
+        return f'You drank a {self.level} Health Potion and were healed for {amount_healed} damage.'
+
+
+class Inventory(object):
+    def __init__(self):
+        self._items = []
+
+    @property
+    def items(self):
+        return self._items
+
+    def add_item(self, item: Item):
+        if item not in self._items:
+            self._items.append(item)
+
+    def add_items(self, items):
+        for item in items:
+            if item not in self._items:
+                self._items.append(item)
+
+    def remove_item(self, item: Item):
+        if item in self._items:
+            self._items.remove(item)
 
 
 LOOT_TABLE_BY_LEVEL = (

@@ -1,4 +1,4 @@
-from tshrd.inventory import Inventory, Weapon, Armor
+from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion
 
 
 class Character(object):
@@ -37,8 +37,12 @@ class Character(object):
         self.health -= amount
         return amount
 
-    def heal(self, amount: int):
-        self.health = min(self.max_health, self.health + amount)
+    def heal(self, amount: int) -> int:
+        # Heal the character for the given amount. Cannot go above max health.
+        new_health = min(self.max_health, self.health + amount)
+        amount_changed = new_health - self.health
+        self.health = new_health
+        return amount_changed
 
     @property
     def crit_chance(self) -> int:
@@ -61,11 +65,18 @@ def create_player(name: str='Player') -> Character:
     player.power = 4
     player.max_health = player.health = 10
 
+    # give player some starting gear
     player.weapon = Weapon('Shortsword', 'A short sword.')
     player.armor = Armor('Leather Armor')
+    player.inventory.add_item(player.weapon)
+    player.inventory.add_item(player.armor)
+    player.inventory.add_item(HealthPotion('minor'))
 
-    player.inventory.items.append(player.weapon)
-    player.inventory.items.append(player.armor)
+    # TODO: remove this test later
+    for i in range(0, 25):
+        hp = HealthPotion('minor')
+        hp.name += f' {i}'
+        player.inventory.add_item(hp)
 
     player.experience_to_next_level = 10
 
