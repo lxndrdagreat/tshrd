@@ -193,7 +193,7 @@ def state_usable_inventory(game: GameData, root_console: tdl.Console):
                 text_color = (200, 200, 200)
                 if index + current_top == selected_index:
                     text_color = (255, 255, 0)
-                inventory_console.draw_str(text_x, text_y, f'{item.name}', fg=text_color)
+                inventory_console.draw_str(text_x, text_y, f'{str(item)}', fg=text_color)
                 text_y += 1
                 counter += 1
         else:

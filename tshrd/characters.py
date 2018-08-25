@@ -1,4 +1,4 @@
-from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion
+from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength
 
 
 class Character(object):
@@ -70,11 +70,11 @@ def create_player(name: str='Player') -> Character:
     player.armor = Armor('Leather Armor')
     player.inventory.add_item(player.weapon)
     player.inventory.add_item(player.armor)
-    player.inventory.add_item(HealthPotion('minor'))
+    player.inventory.add_item(HealthPotion(PotionStrength.Minor))
 
     # TODO: remove this test later
     for i in range(0, 25):
-        hp = HealthPotion('minor')
+        hp = HealthPotion(PotionStrength.Minor)
         hp.name += f' {i}'
         player.inventory.add_item(hp)
 

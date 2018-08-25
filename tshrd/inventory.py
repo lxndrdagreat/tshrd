@@ -1,5 +1,6 @@
 import random
 from tshrd.utils import weighted_choice
+from enum import IntEnum, auto
 
 
 PREFIXES = ('', 'Bloody', 'Dirty', 'Shiny', 'Evil', 'Blessed', 'Broken', 'Tarnished', 'Mastercraft', 'Rusty', 'Conqueror\'s')
@@ -106,8 +107,15 @@ def generate_random_armor(level: int) -> Armor:
     return armor
 
 
+class PotionStrength(IntEnum):
+    Minor = auto()
+    Medium = auto()
+    Major = auto()
+    Mega = auto()
+
+
 class Potion(Item):
-    def __init__(self, name: str, level: str, description: str=None):
+    def __init__(self, name: str, level: PotionStrength, description: str=None):
         Item.__init__(self, name, description)
 
         self._activate_in_combat = True
@@ -120,20 +128,24 @@ class Potion(Item):
     def reset(self):
         self.uses = 1
 
+    def __repr__(self):
+        return f'{self.level.name} {self.name}'
+
 
 class HealthPotion(Potion):
-    def __init__(self, level: str):
+    def __init__(self, level: PotionStrength):
         Potion.__init__(self, 'Health Potion', level)
         self._activate_on_player = True
 
+        self._amount_per_level = {
+            PotionStrength.Minor: 3,
+            PotionStrength.Medium: 5,
+            PotionStrength.Major: 10,
+            PotionStrength.Mega: 15
+        }
+
     def activate(self, target) -> str:
-        amount = 3
-        if self.level == 'medium':
-            amount = 5
-        elif self.level == 'major':
-            amount = 10
-        elif self.level == 'mega':
-            amount = 15
+        amount = self._amount_per_level.get(self.level, 3)
         amount_healed = target.heal(amount)
         return f'You drank a {self.level} Health Potion and were healed for {amount_healed} damage.'
 
@@ -192,13 +204,13 @@ def generate_random_loot(level: int, num_items: int=1) -> list:
 
         if kind == 'health_potion':
             if level < 5:
-                pot = HealthPotion('minor')
+                pot = HealthPotion(PotionStrength.Minor)
             elif level < 10:
-                pot = HealthPotion('medium')
+                pot = HealthPotion(PotionStrength.Medium)
             elif level < 15:
-                pot = HealthPotion('major')
+                pot = HealthPotion(PotionStrength.Major)
             else:
-                pot = HealthPotion('mega')
+                pot = HealthPotion(PotionStrength.Mega)
             loot.append(pot)
         elif kind == 'weapon':
             weapon = generate_random_weapon(level)

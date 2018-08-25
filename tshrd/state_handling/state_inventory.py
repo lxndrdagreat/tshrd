@@ -22,7 +22,7 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     inventory_panel.clear()
 
     for item in player.inventory.items:
-        inventory_panel.print_str(f'{item.name}\n')
+        inventory_panel.print_str(f'{str(item)}\n')
 
     # draw panel
     root_console.blit(inventory_panel, 1, 1)
