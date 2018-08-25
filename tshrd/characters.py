@@ -73,7 +73,7 @@ def create_player(name: str='Player') -> Character:
     player.inventory.add_item(HealthPotion(PotionStrength.Minor))
 
     # TODO: remove this test later
-    for i in range(0, 25):
+    for i in range(0, 50):
         hp = HealthPotion(PotionStrength.Minor)
         hp.name += f' {i}'
         player.inventory.add_item(hp)
