@@ -144,10 +144,12 @@ class HealthPotion(Potion):
             PotionStrength.Mega: 15
         }
 
+        self.description = f'Heals you for {self._amount_per_level[self.level]} hit points.'
+
     def activate(self, target) -> str:
         amount = self._amount_per_level.get(self.level, 3)
         amount_healed = target.heal(amount)
-        return f'You drank a {self.level} Health Potion and were healed for {amount_healed} damage.'
+        return f'You drank a {self.level.name} Health Potion and were healed for {amount_healed} damage.'
 
 
 class Inventory(object):

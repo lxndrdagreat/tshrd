@@ -1,4 +1,4 @@
-from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength
+from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength, Item
 
 
 class Character(object):
@@ -43,6 +43,27 @@ class Character(object):
         amount_changed = new_health - self.health
         self.health = new_health
         return amount_changed
+
+    def is_item_equipped(self, item: Item) -> bool:
+        return item == self.weapon or item == self.armor
+
+    def unequip_item(self, item: Item) -> str:
+        if item == self.weapon:
+            self.weapon = None
+            return f'You unequipped your weapon, {item.name}'
+        elif item == self.armor:
+            self.armor = None
+            return f'You unequipped your armor, {item.name}'
+        return None
+
+    def equip_item(self, item: Item) -> str:
+        if self.is_item_equipped(item):
+            return f'{item.name} is already equipped.'
+        if isinstance(item, Weapon):
+            self.weapon = item
+        elif isinstance(item, Armor):
+            self.armor = item
+        return f'You equipped {item.name}'
 
     @property
     def crit_chance(self) -> int:
