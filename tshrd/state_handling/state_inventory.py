@@ -10,17 +10,18 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     player: Character = game.the_player
 
     # create panels
-    inventory_panel = tdl.Console(int((root_console.width - 2) * .7), root_console.height - 2)
+    inventory_panel = tdl.Console(int((root_console.width - 2) * .7), 30)
     inventory_panel.set_colors(fg=(220, 220, 220), bg=(0, 0, 50))
     equipped_panel = tdl.Console(int((root_console.width - 2) * .3), 30)
     equipped_panel.set_colors(fg=(220, 220, 220), bg=(0, 30, 0))
     # height = root height - heading x2 - space between panels - equipment panel height
-    tooltip_panel = tdl.Console(equipped_panel.width, root_console.height - 34)
+    tooltip_panel = tdl.Console(root_console.width - 2, root_console.height - 34)
     tooltip_panel.set_colors(fg=(255, 255, 255), bg=(10, 10, 10))
     tooltip_panel.set_mode('scroll')
 
     selected_index = 0
     current_top = 0
+    max_lines = inventory_panel.height
 
     while True:
         # clear console
@@ -29,14 +30,13 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         # titles
         root_console.draw_str(1, 0, 'INVENTORY', fg=(255, 255, 0), bg=None)
         root_console.draw_str(int((root_console.width - 2) * .7 + 2), 0, 'EQUIPPED', fg=(255, 255, 0), bg=None)
-        root_console.draw_str(int((root_console.width - 2) * .7 + 2), 32, 'TOOLTIP', fg=(200, 200, 200), bg=None)
+        root_console.draw_str(1, 32, 'TOOLTIP', fg=(200, 200, 200), bg=None)
 
         # inventory list panel
         inventory_panel.clear()
 
         text_y = 0
         text_x = 0
-        max_lines = root_console.height - 2
         for index, item in enumerate(player.inventory.items[current_top:current_top+max_lines]):
             text_color = (200, 200, 200)
             item_text = f'{str(item)}'
@@ -76,7 +76,17 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             if selected_item.description:
                 tooltip_panel.move(0, 0)
                 tooltip_panel.print_str(selected_item.description)
-        root_console.blit(tooltip_panel, 2 + inventory_panel.width, 33)
+            # show weapon stats
+            if isinstance(selected_item, Weapon):
+                as_weapon: Weapon = selected_item
+                tooltip_panel.print_str('\n\n')
+                tooltip_panel.print_str(f'DAMAGE: +{as_weapon.damage}    HIT: +{as_weapon.hit_chance_modifier}    CRIT: +{as_weapon.crit_chance_modifier}')
+            # show armor stats
+            if isinstance(selected_item, Armor):
+                as_armor: Armor = selected_item
+                tooltip_panel.print_str('\n\n')
+                tooltip_panel.print_str(f'BLOCK: +{as_armor.block}')
+        root_console.blit(tooltip_panel, 1, 33)
 
         tdl.flush()
 
@@ -115,6 +125,8 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             # drop the item from inventory
             # TODO: add item to room like treasure?
             selected_item: Item = player.inventory.items[selected_index]
+            if player.is_item_equipped(selected_item):
+                continue
             game.log(f'Dropped {selected_item.name} to the floor. Gone Forever.')
             player.inventory.remove_item(selected_item)
             if selected_index >= len(player.inventory.items):

@@ -1,10 +1,11 @@
 import random
 from tshrd.utils import weighted_choice
 from enum import IntEnum, auto
+import math
 
 
-PREFIXES = ('', 'Bloody', 'Dirty', 'Shiny', 'Evil', 'Blessed', 'Broken', 'Tarnished', 'Mastercraft', 'Rusty', 'Conqueror\'s')
-SUFFIXES = ('', 'Of Pain', 'Of Doom', 'Of Chaos', 'Of Light')
+PREFIXES = ('Bloody', 'Dirty', 'Shiny', 'Cursed', 'Blessed', 'Broken', 'Tarnished', 'Mastercraft', 'Rusty', 'Conqueror\'s')
+SUFFIXES = ('Of Pain', 'Of Doom', 'Of Chaos', 'Of Light')
 WEAPONS = ('Sword', 'Dagger', 'Staff', 'Hammer', 'Mace', 'Flail')
 ARMORS = ('Chain Mail', 'Plate Mail', 'Scale Mail', 'Leather Jerkin', 'Cuirass')
 
@@ -63,40 +64,46 @@ class Weapon(Item):
 
         self._equipable = True
 
-        # percentage
-        self._multiplier_min = 1.1
-        self._multiplier_max = 1.15
-
-    def get_multiplier_range(self):
-        return self._multiplier_min, self._multiplier_max
-
-    def multiplier(self):
-        return random.uniform(self._multiplier_min, self._multiplier_max)
+        self.hit_chance_modifier = 0
+        self.crit_chance_modifier = 1
+        self.damage = 2
 
 
 def generate_random_weapon(level: int) -> Weapon:
-    name = '{} {} {}'.format(random.choice(PREFIXES), random.choice(WEAPONS), random.choice(SUFFIXES)).strip()
+    weapon_type = random.choice(WEAPONS)
+    weapon_name = weapon_type
+    prefix = random.choice(PREFIXES)
+    has_prefix = random.randint(1, 101) >= 50
+    if has_prefix:
+        weapon_name = f'{prefix} {weapon_name}'
+    has_suffix = random.randint(1, 101) >= 50
+    if has_suffix:
+        suffix = random.choice(SUFFIXES)
+        weapon_name = f'{weapon_name} {suffix}'
 
-    weapon = Weapon(name)
+    weapon = Weapon(weapon_name)
+
+    base_damage = 2 * level
+    damage = base_damage
+    if has_prefix:
+        if prefix == 'Blessed':
+            damage += level
+        elif prefix == 'Cursed':
+            damage = max(math.ceil(base_damage / 2.0), damage - level)
+        elif prefix == 'Mastercraft':
+            weapon.crit_chance_modifier = 5
+
+    weapon.damage = damage
 
     return weapon
 
 
 class Armor(Item):
-    def __init__(self, name: str, description: str=None):
+    def __init__(self, name: str, block: int=0, description: str=None):
         Item.__init__(self, name, description)
 
         self._equipable = True
-
-        # percentage
-        self._multiplier_min = 1.1
-        self._multiplier_max = 1.15
-
-    def get_multiplier_range(self):
-        return self._multiplier_min, self._multiplier_max
-
-    def multiplier(self):
-        return random.uniform(self._multiplier_min, self._multiplier_max)
+        self.block = block
 
 
 def generate_random_armor(level: int) -> Armor:

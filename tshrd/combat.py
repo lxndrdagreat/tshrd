@@ -12,43 +12,34 @@ class AttackResult:
 
 
 def do_attack(attacker: Character, defender: Character) -> AttackResult:
-    attacks = 0
-    defenses = 0
     did_crit = False
     attack_result = AttackResult()
 
-    critical_chance = attacker.crit_chance
-    attack_chance = attacker.hit_chance
-    defense_chance = defender.block_chance
+    critical_chance = attacker.combined_crit_chance
+    attack_chance = attacker.combined_hit_chance
 
-    for i in range(0, attacker.power):
-        # roll a d100
-        attack_roll = random.randint(1, 101)        
-        if attack_roll <= attack_chance:
-            attacks += 1
-            if attack_roll <= critical_chance:
-                did_crit = True
+    # roll for attack on a d100
+    attack_roll = random.randint(1, 101)
+    did_hit = attack_roll <= attack_chance
+    did_crit = attack_roll <= critical_chance
 
-    for i in range(0, defender.block):
-        # roll a d100
-        defense_roll = random.randint(1, 101)        
-        if defense_roll <= defense_chance:
-            defenses += 1
+    damage_roll = 0
 
-    damage = 0
+    if did_hit:
+        # roll for damage amount
+        damage_roll = random.randint(attacker.min_damage, attacker.max_damage + 1)
 
-    # If the attacker scored a critical hit, double the attacks value
-    if did_crit:
-        attacks *= 2
+        if did_crit:
+            # Apply extra damage for critical hit
+            damage_roll += attacker.max_damage
 
-    if attacks - defenses > 0:
-        damage = attacks - defenses
+    # subtract defender's block from the damage
+    damage = max(0, damage_roll - defender.combined_block)
 
     defender.health -= damage
 
     attack_result.damage = damage
-    attack_result.damage_blocked = defenses
+    attack_result.damage_blocked = defender.combined_block if defender.combined_block < damage_roll else damage_roll
     attack_result.defender_killed = defender.health <= 0
     attack_result.critical_hit = did_crit
-    attack_result.critical_miss = attacks == 0
     return attack_result

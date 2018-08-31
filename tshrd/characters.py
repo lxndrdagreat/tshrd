@@ -6,14 +6,19 @@ class Character(object):
         self.name = ''
 
         self.tile = '@'
-        self.power = 0
-        self.block = 0
         self.health = 0
         self.max_health = 0
         self.food = 0
         self.experience = 0
         self.experience_to_next_level = 0
         self.level = 1
+
+        # combat stats
+        self.power = 0
+        self.block = 0
+        self.hit_chance = 75
+        # by default, if character is "unarmed", crit chance will be 0
+        self.crit_chance = 0
 
         self.weapon: Weapon = None
         self.armor: Armor = None
@@ -66,16 +71,40 @@ class Character(object):
         return f'You equipped {item.name}'
 
     @property
-    def crit_chance(self) -> int:
-        return 1
+    def combined_crit_chance(self) -> int:
+        # TODO: add up character stat + stat(s) or items, skills, etc.
+        chance = self.crit_chance
+        if self.weapon:
+            chance += self.weapon.crit_chance_modifier
+        return chance
 
     @property
-    def hit_chance(self) -> int:
+    def combined_hit_chance(self) -> int:
+        # TODO: add up character stat + stat(s) or items, skills, etc.
         return 75
 
+    # @property
+    # def combined_block_chance(self) -> int:
+    #     # TODO: add up character stat + stat(s) or items, skills, etc.
+    #     return 10
+
     @property
-    def block_chance(self) -> int:
-        return 10
+    def combined_block(self) -> int:
+        block = self.block
+        if self.armor:
+            block += self.armor.block
+        return block
+
+    @property
+    def min_damage(self) -> int:
+        return self.power
+
+    @property
+    def max_damage(self) -> int:
+        damage = self.power
+        if self.weapon:
+            damage += self.weapon.damage
+        return damage
 
 
 def create_player(name: str='Player') -> Character:
@@ -87,8 +116,8 @@ def create_player(name: str='Player') -> Character:
     player.max_health = player.health = 10
 
     # give player some starting gear
-    player.weapon = Weapon('Shortsword', 'A short sword.')
-    player.armor = Armor('Leather Armor')
+    player.weapon = Weapon('Shortsword', 'A basic short sword.')
+    player.armor = Armor('Leather Armor', 1, 'Passable armor made out of leather. You should get some better armor soon if you want to survive.')
     player.inventory.add_item(player.weapon)
     player.inventory.add_item(player.armor)
     player.inventory.add_item(HealthPotion(PotionStrength.Minor))
