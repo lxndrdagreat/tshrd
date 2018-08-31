@@ -67,6 +67,13 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         equipped_panel.draw_str(1, 4, 'ARMOR:')
         equipped_panel.draw_str(2, 5, f'{player.armor.name if player.armor else "EMPTY"}')
 
+        # combat stats
+        equipped_panel.draw_str(1, 8, 'STATS:')
+        equipped_panel.draw_str(2, 9, f'HIT CHANCE: {player.combined_hit_chance}%')
+        equipped_panel.draw_str(2, 10, f'CRIT CHANCE: {player.combined_crit_chance}%')
+        equipped_panel.draw_str(2, 11, f'DAMAGE: {player.min_damage}-{player.max_damage}')
+        equipped_panel.draw_str(2, 12, f'BLOCK: {player.combined_block}')
+
         root_console.blit(equipped_panel, 2 + inventory_panel.width, 1)
 
         # draw tooltip
