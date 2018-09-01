@@ -156,9 +156,12 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
     # killed the monster! yay!
     if monster.health <= 0:
-        # TODO reward the player for slaying the monster
-        text = f'You have killed the {monster.name}!'
+        text = f'You have killed the {monster.name}! You have been awarded {monster.experience} XP.'
         game.log(text)
+        if player.grant_experience(monster.experience):
+            # player leveled up!
+            game.log(f'LEVEL UP! You have reached level {player.level}!', (255, 255, 0))
+
         return GameState.ROOM
 
     # player is dead

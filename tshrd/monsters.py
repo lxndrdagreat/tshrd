@@ -51,7 +51,8 @@ MONSTER_PREFIX_MODIFIERS = (
         'name': 'Large',
         'mods': {
             'health': 4,
-            'block': 1
+            'block': 1,
+            'xp': 1
         }
     },
     {
@@ -59,14 +60,16 @@ MONSTER_PREFIX_MODIFIERS = (
         'mods': {
             'health': 4,
             'block': 2,
-            'power': 2
+            'power': 2,
+            'xp': 4
         }
     },
     {
         'name': 'Small',
         'mods': {
             'health': -2,
-            'power': -1
+            'power': -1,
+            'xp': -1
         }
     }
 )
@@ -76,24 +79,30 @@ MONSTER_BASE_DATA_BY_LEVEL = (
     {
         'health': 4,
         'power': 2,
-        'block': 0
+        'block': 0,
+        'xp': 2
     },
     # Level 2
     {
         'health': 6,
         'power': 3,
-        'block': 1
+        'block': 1,
+        'xp': 3
     },
     # Level 3
     {
         'health': 8,
         'power': 4,
-        'block': 2
+        'block': 2,
+        'xp': 4
     }
 )
 
 
-def create_monster_for_level(level, monster_pool=None, prefix_pool=None, force_prefix=False) -> Character:
+def create_monster_for_level(level: int=1,
+                             monster_pool: list=None,
+                             prefix_pool: list=None,
+                             force_prefix: bool=False) -> Character:
     monster = Character()
     base_stats = MONSTER_BASE_DATA_BY_LEVEL[level - 1]
     monster.max_health = base_stats['health']
@@ -126,6 +135,12 @@ def create_monster_for_level(level, monster_pool=None, prefix_pool=None, force_p
     monster.name = f'{prefix_mod["name"] + " " if prefix_mod else ""}{monster_base["name"]}'
     monster.tile = monster_base['tile']
     monster.reset()
+
+    # experience points
+    base_level_xp = base_stats['xp']
+    prefix_bonus_xp = prefix_mod['xp'] if prefix_mod and 'xp' in prefix_mod else 0
+    final_xp = base_level_xp - prefix_bonus_xp
+    monster.experience = final_xp
 
     return monster
 

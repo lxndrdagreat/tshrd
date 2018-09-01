@@ -73,7 +73,8 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     info_con.draw_str(1, 7, 'MENU:')
     info_con.draw_str(1, 8, '[m] Map')
     info_con.draw_str(1, 9, '[i] Inventory')
-    info_con.draw_str(1, 10, '[ESC] Quit')
+    info_con.draw_str(1, 10, '[c] Character')
+    info_con.draw_str(1, 11, '[ESC] Quit')
     root_console.blit(info_con, int(root_console.width / 2), 0)
 
     # draw the log
@@ -89,7 +90,8 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         'RIGHT',
         'ENTER',
         'i',
-        'm'
+        'm',
+        'c'
     ])
 
     if user_input == 'UP':
@@ -112,6 +114,9 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
     elif user_input == 'i':
         return GameState.INVENTORY
+
+    elif user_input == 'c':
+        return GameState.CHARACTER_SHEET
 
     elif user_input == 'ENTER':
         return GameState.NEXT_LEVEL

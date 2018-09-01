@@ -13,6 +13,9 @@ class Character(object):
         self.experience_to_next_level = 0
         self.level = 1
 
+        # unassigned level-up points
+        self._unassigned_points = 0
+
         # combat stats
         self.power = 0
         self.block = 0
@@ -28,14 +31,17 @@ class Character(object):
     def reset(self):
         self.health = self.max_health
 
-    def grant_experience(self, amount: int):
+    def grant_experience(self, amount: int) -> bool:
         self.experience += amount
         if self.experience >= self.experience_to_next_level:
             self.level_up()
+            return True
+        return False
 
     def level_up(self):
         self.level += 1
-        self.experience_to_next_level = self.experience_to_next_level * 1.5
+        self._unassigned_points += 2
+        self.experience_to_next_level = int(self.experience_to_next_level * 2.5)
 
     def take_damage(self, amount: int) -> int:
         amount = amount - self.get_block()
@@ -69,6 +75,13 @@ class Character(object):
         elif isinstance(item, Armor):
             self.armor = item
         return f'You equipped {item.name}'
+
+    def spend_points(self, points: int):
+        self._unassigned_points = max(self._unassigned_points - points, 0)
+
+    @property
+    def unspent_points(self) -> int:
+        return self._unassigned_points
 
     @property
     def combined_crit_chance(self) -> int:

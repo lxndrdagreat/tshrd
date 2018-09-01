@@ -21,6 +21,7 @@ class GameState(Enum):
     GAME_OVER = auto()
     GAME_RESTART = auto()
     MAP = auto()
+    CHARACTER_SHEET = auto()
 
 
 class GameData:

@@ -1,6 +1,7 @@
 from tshrd.state_handling import GameData, GameState
 from tshrd.state_handling import state_encounter_monster, state_game_over, state_encounter_shrine, state_encounter_trap, \
-    state_encounter_treasure, state_in_room, state_map, state_move, state_next_level, state_inventory
+    state_encounter_treasure, state_in_room, state_map, state_move, state_next_level, state_inventory, \
+    state_character
 from tshrd.utils import WindowClosedException
 import tdl
 import os
@@ -36,7 +37,8 @@ def start():
         GameState.GAME_OVER: state_game_over.state,
         GameState.MAP: state_map.state,
         GameState.NEXT_LEVEL: state_next_level.state,
-        GameState.INVENTORY: state_inventory.state
+        GameState.INVENTORY: state_inventory.state,
+        GameState.CHARACTER_SHEET: state_character.state
     }
 
     while not tdl.event.is_window_closed() and active_state != GameState.CLOSE:
