@@ -2,6 +2,7 @@ import tdl
 import math
 from tshrd.utils import wait_for_keys, draw_player_status_bar
 from tshrd.state_handling import GameData, GameState
+from tshrd.mapping import EncounterType
 
 
 def state(game: GameData, root_console: tdl.Console) -> GameState:
@@ -55,10 +56,10 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
         # draw encounter
         if game.current_room.encounter and not game.current_room.encountered:
-            if game.current_room.encounter == 'monster':
+            if game.current_room.encounter == EncounterType.MONSTER:
                 root_console.draw_char(left + center_x, top + center_y, game.current_room.monster.tile, bg=None, fg=(255, 255, 255))
 
-            elif game.current_room.encounter == 'stairs':
+            elif game.current_room.encounter == EncounterType.STAIRS:
                 game.log('You find stairs to the next level! Press [ENTER] to advance.', (0, 200, 235))
 
     # draw info bar

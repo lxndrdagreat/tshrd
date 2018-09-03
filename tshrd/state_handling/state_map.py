@@ -1,6 +1,7 @@
 import tdl
 from tshrd.state_handling import GameData, GameState
 from tshrd.utils import wait_for_keys
+from tshrd.mapping import EncounterType
 
 
 def state(game: GameData, root_console: tdl.Console) -> GameState:
@@ -19,12 +20,12 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     map_console = tdl.Console(total_width, total_height)
 
     legend_scheme = {
-        'monster': (180, 0, 0),
-        'shrine': (255, 255, 200),
-        'treasure': (200, 200, 0),
-        'trap': (149, 108, 53),
-        'stairs': (0, 200, 235),
-        'empty': (255, 255, 255)
+        EncounterType.MONSTER: (180, 0, 0),
+        EncounterType.SHRINE: (255, 255, 200),
+        EncounterType.TREASURE: (200, 200, 0),
+        EncounterType.TRAP: (149, 108, 53),
+        EncounterType.STAIRS: (0, 200, 235),
+        EncounterType.EMPTY: (255, 255, 255)
     }
 
     # legend
@@ -32,17 +33,17 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     y = 1
     root_console.draw_str(x, y, 'LEGEND', bg=None, fg=(255, 255, 255))
     y += 1
-    root_console.draw_str(x, y, '# Shrine', bg=None, fg=legend_scheme['shrine'])
+    root_console.draw_str(x, y, '# Shrine', bg=None, fg=legend_scheme[EncounterType.SHRINE])
     y += 1
-    root_console.draw_str(x, y, '# Treasure', bg=None, fg=legend_scheme['treasure'])
+    root_console.draw_str(x, y, '# Treasure', bg=None, fg=legend_scheme[EncounterType.TREASURE])
     y += 1
-    root_console.draw_str(x, y, '# Monster', bg=None, fg=legend_scheme['monster'])
+    root_console.draw_str(x, y, '# Monster', bg=None, fg=legend_scheme[EncounterType.MONSTER])
     y += 1
-    root_console.draw_str(x, y, '# Trap', bg=None, fg=legend_scheme['trap'])
+    root_console.draw_str(x, y, '# Trap', bg=None, fg=legend_scheme[EncounterType.TRAP])
     y += 1
-    root_console.draw_str(x, y, '# Stairs', bg=None, fg=legend_scheme['stairs'])
+    root_console.draw_str(x, y, '# Stairs', bg=None, fg=legend_scheme[EncounterType.STAIRS])
     y += 1
-    root_console.draw_str(x, y, '# Empty', bg=None, fg=legend_scheme['empty'])
+    root_console.draw_str(x, y, '# Empty', bg=None, fg=legend_scheme[EncounterType.EMPTY])
     y += 1
     root_console.draw_str(x, y, '@ Player', bg=None, fg=(255, 255, 255))
 

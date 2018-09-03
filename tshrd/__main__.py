@@ -1,7 +1,7 @@
 from tshrd.state_handling import GameData, GameState
 from tshrd.state_handling import state_encounter_monster, state_game_over, state_encounter_shrine, state_encounter_trap, \
     state_encounter_treasure, state_in_room, state_map, state_move, state_next_level, state_inventory, \
-    state_character
+    state_character, state_character_create
 from tshrd.utils import WindowClosedException
 import tdl
 import os
@@ -38,14 +38,15 @@ def start():
         GameState.MAP: state_map.state,
         GameState.NEXT_LEVEL: state_next_level.state,
         GameState.INVENTORY: state_inventory.state,
-        GameState.CHARACTER_SHEET: state_character.state
+        GameState.CHARACTER_SHEET: state_character.state,
+        GameState.CHARACTER_CREATION: state_character_create.state
     }
 
     while not tdl.event.is_window_closed() and active_state != GameState.CLOSE:
         if active_state == GameState.GAME_RESTART:
             # create a new game
             active_game = GameData()
-            active_state = GameState.ROOM
+            active_state = GameState.CHARACTER_CREATION
             continue
         active_game.state = active_state
         try:

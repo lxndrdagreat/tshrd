@@ -120,13 +120,13 @@ class Character(object):
         return damage
 
 
-def create_player(name: str='Player') -> Character:
+def create_player(name: str='Player', power: int=4, block: int=2, health: int=10) -> Character:
     player = Character()
     player.name = name
 
-    player.block = 2
-    player.power = 4
-    player.max_health = player.health = 10
+    player.block = block
+    player.power = power
+    player.max_health = player.health = health
 
     # give player some starting gear
     player.weapon = Weapon('Shortsword', 'A basic short sword.')

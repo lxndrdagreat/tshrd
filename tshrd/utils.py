@@ -14,6 +14,7 @@ def wait_for_keys(keys=('ENTER', 'SPACE', 'ESCAPE',)) -> str:
 
     Will also raise an exception if the window is closed.
     """
+    # TODO: allow using regex (i.e., a-z)
     e = tdl.event.key_wait()
     while not ((e.key and e.key in keys) or (e.char and e.char in keys)):
         if tdl.event.is_window_closed():
@@ -21,6 +22,8 @@ def wait_for_keys(keys=('ENTER', 'SPACE', 'ESCAPE',)) -> str:
         e = tdl.event.key_wait()
 
     if e.key and e.key == 'CHAR':
+        if e.shift:
+            return e.char.capitalize()
         return e.char
     return e.key
 

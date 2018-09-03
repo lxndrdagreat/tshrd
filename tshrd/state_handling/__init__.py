@@ -22,6 +22,7 @@ class GameState(Enum):
     GAME_RESTART = auto()
     MAP = auto()
     CHARACTER_SHEET = auto()
+    CHARACTER_CREATION = auto()
 
 
 class GameData:
@@ -33,7 +34,7 @@ class GameData:
         self.previous_room = None
         self.current_level = 0
 
-        self.the_player = create_player(player_name)
+        self.the_player = None
 
         self.room_draw_width = 9
         self.room_draw_height = 9

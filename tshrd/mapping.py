@@ -1,5 +1,16 @@
 import random
 from tshrd.utils import weighted_choice
+from enum import IntEnum, auto
+
+
+class EncounterType(IntEnum):
+    START = auto()
+    EMPTY = auto()
+    SHRINE = auto()
+    MONSTER = auto()
+    TREASURE = auto()
+    TRAP = auto()
+    STAIRS = auto()
 
 
 class Room:
@@ -23,7 +34,7 @@ class Room:
         self.tried_east = False
         self.tried_west = False
 
-        self.encounter = None
+        self.encounter: EncounterType = None
         self.encountered = False
 
         # monster stored here if encounter is a monster
@@ -78,11 +89,11 @@ class Room:
 
 class MapInformation:
     def __init__(self, encounter_list: list=(
-            ('empty', 0.65, True),
-            ('shrine', 0.6, False),
-            ('monster', 1.3, True),
-            ('treasure', 1.1, True),
-            ('trap', 1.1, True)
+            (EncounterType.EMPTY, 0.65, True),
+            (EncounterType.SHRINE, 0.6, False, 1),
+            (EncounterType.MONSTER, 1.3, True),
+            (EncounterType.TREASURE, 1.1, True),
+            (EncounterType.TRAP, 1.1, True)
     )):
         self.rooms = []
         self.bounds = (0, 0, 0, 0)
@@ -186,6 +197,11 @@ class MapInformation:
 
     def generate_encounters(self):
 
+        encounter_count = {}
+
+        for encounter_type in EncounterType:
+            encounter_count[encounter_type] = 0
+
         have_exit = False
         for room in self.rooms:
             if room.encounter is not None:
@@ -193,19 +209,22 @@ class MapInformation:
 
             if room.depth >= self.depth and not have_exit:
                 have_exit = True
-                room.encounter = 'stairs'
+                room.encounter = EncounterType.STAIRS
                 continue
 
             neighbor_encounters = [r.encounter for r in room.neighbor_list() if r.encounter is not None]
 
-            allowed_encounters = [encounter[:-1] for encounter
+            allowed_encounters = [encounter[0:2] for encounter
                                   in self.encounters
-                                  if encounter[0] not in neighbor_encounters or encounter[2] is True]
+                                  if (encounter[0] not in neighbor_encounters or encounter[2] is True)
+                                  and (len(encounter) < 4 or encounter_count[encounter[0]] < encounter[3])]
 
             if len(allowed_encounters) > 0:
                 room.encounter = weighted_choice(allowed_encounters)
+                encounter_count[room.encounter] += 1
             else:
-                room.encounter = 'empty'
+                room.encounter = EncounterType.EMPTY
+                encounter_count[room.encounter] += 1
 
 
 def connect_rooms(start: tuple, end: tuple, grid: list, room_size: int):
@@ -255,7 +274,7 @@ def depth_first_build(max_depth: int=4) -> MapInformation:
     stack = []
 
     room = Room(0, 0)
-    room.encounter = 'start'
+    room.encounter = EncounterType.START
 
     stack.append(room)
     the_map.rooms.append(room)

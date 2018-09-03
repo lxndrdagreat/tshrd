@@ -2,6 +2,7 @@ import tdl
 import math
 import time
 from tshrd.state_handling import GameData, GameState
+from tshrd.mapping import EncounterType
 
 
 def state(game: GameData, root_console: tdl.Console) -> GameState:
@@ -39,15 +40,15 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         game.advance_turn()
         if game.current_room.encountered:
             return GameState.ROOM
-        if game.current_room.encounter == 'treasure':
+        if game.current_room.encounter == EncounterType.TREASURE:
             return GameState.ENCOUNTER_TREASURE
-        elif game.current_room.encounter == 'shrine':
+        elif game.current_room.encounter == EncounterType.SHRINE:
             return GameState.ENCOUNTER_SHRINE
-        elif game.current_room.encounter == 'monster':
+        elif game.current_room.encounter == EncounterType.MONSTER:
             return GameState.ENCOUNTER_MONSTER
-        elif game.current_room.encounter == 'trap':
+        elif game.current_room.encounter == EncounterType.TRAP:
             return GameState.ENCOUNTER_TRAP
-        elif game.current_room.encounter == 'stairs':
+        elif game.current_room.encounter == EncounterType.STAIRS:
             return GameState.ROOM
     return GameState.ROOM
 
