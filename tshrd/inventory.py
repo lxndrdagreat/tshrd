@@ -228,7 +228,9 @@ def generate_random_loot(level: int, num_items: int=1) -> list:
             armor = generate_random_armor(level)
             loot.append(armor)
         elif kind == 'food':
-            loot.append('Food')
+            amount = random.randint(max(1, level - 2), level + 3)
+            for a in range(1, amount + 1):
+                loot.append('Food')
         elif kind == 'gold':
             amount = random.randint(level, level + 5)
             gold_amount += amount
