@@ -87,7 +87,11 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             if isinstance(selected_item, Weapon):
                 as_weapon: Weapon = selected_item
                 tooltip_panel.print_str('\n\n')
-                tooltip_panel.print_str(f'DAMAGE: +{as_weapon.damage}    HIT: +{as_weapon.hit_chance_modifier}    CRIT: +{as_weapon.crit_chance_modifier}')
+                damage = f'+{as_weapon.damage}'
+                hit = f'{"+" if as_weapon.hit_chance_modifier > 0 else ""}{as_weapon.hit_chance_modifier}'
+                crit = f'+{as_weapon.crit_chance_modifier}'
+                tooltip_panel.print_str(f'DAMAGE: {damage}    HIT: {hit}    CRIT: {crit}')
+                # TODO: show information about prefix and suffix
             # show armor stats
             if isinstance(selected_item, Armor):
                 as_armor: Armor = selected_item

@@ -87,3 +87,89 @@ Opens the character's inventory screen.
 **y/n:**
 
 Responding yes/no (confirm/deny, etc.) for prompts.
+
+## Items and Gear
+
+The player can equip one weapon and one armor, both of which alter his base
+stats. There are also other kinds of items, like potions, which have
+various effects.
+
+### Potions
+
+_Coming soon_
+
+### Weapons
+
+There are the following kinds of weapons:
+
+- Sword
+- Dagger
+- Staff
+- Hammer
+- Mace
+- Flail
+
+_Currently, the different weapon types are purely cosmetic in nature.
+Eventually, they will differ more._
+
+Weapons have the following stats:
+
+**Hit chance modifier:** Adjusts the character's chance to hit.
+
+**Crit chance modifier:** Adjusts the character's chance to get a critical
+hit. An unarmed character cannot get critical hits.
+
+**Damage:** Weapon damage adds to the possible maximum damage the character
+can do in combat.
+
+#### Weapon Suffixes
+
+Different weapon suffixes guarantee specific effects on the weapon.
+
+##### Pain
+
+Weapons with the "of Pain" suffix deal more damage on a successful hit.
+
+##### Vampirism
+
+Weapons with the "of Vampirism" suffix have a _chance_ to heal the wielder
+after doing damage.
+
+##### Adventuring
+
+These weapons boost the amount of _XP_ gained by the wielder when they
+kill monsters.
+
+##### Doom
+
+When damage is dealt, if the target's remaining health is only `1`
+hit point, then the target takes bonus damage and is killed.
+
+#### Weapon Prefixes
+
+##### Heavy
+
+Heavy weapons are unwieldly, making the bearer slower and therefore less
+likely to hit their target.
+
+##### Blessed
+
+Blessed weapons gain a damage bonus.
+
+##### Cursed
+
+Cursed weapons deal less damage.
+
+##### Broken
+
+A broken weapon is basically useless... but it might be better than going
+empty-handed.
+
+##### Mastercraft
+
+A weapon truly crafted by a master blacksmith, these weapons have an expanded
+critical range, making the wielder more likely to score a critical hit.
+
+### Armor
+
+_Coming soon_

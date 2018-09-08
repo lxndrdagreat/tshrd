@@ -1,4 +1,5 @@
 from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength, Item
+from tshrd.inventory import generate_random_weapon
 
 
 class Character(object):
@@ -85,7 +86,6 @@ class Character(object):
 
     @property
     def combined_crit_chance(self) -> int:
-        # TODO: add up character stat + stat(s) or items, skills, etc.
         chance = self.crit_chance
         if self.weapon:
             chance += self.weapon.crit_chance_modifier
@@ -93,8 +93,10 @@ class Character(object):
 
     @property
     def combined_hit_chance(self) -> int:
-        # TODO: add up character stat + stat(s) or items, skills, etc.
-        return 75
+        chance = self.hit_chance
+        if self.weapon:
+            chance += self.weapon.hit_chance_modifier
+        return chance
 
     # @property
     # def combined_block_chance(self) -> int:
@@ -129,7 +131,8 @@ def create_player(name: str='Player', power: int=4, block: int=2, health: int=10
     player.max_health = player.health = health
 
     # give player some starting gear
-    player.weapon = Weapon('Shortsword', 'A basic short sword.')
+    # player.weapon = Weapon('Shortsword', 'A basic short sword.')
+    player.weapon = generate_random_weapon(1, 0, 0)
     player.armor = Armor('Leather Armor', 1, 'Passable armor made out of leather. You should get some better armor soon if you want to survive.')
     player.inventory.add_item(player.weapon)
     player.inventory.add_item(player.armor)

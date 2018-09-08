@@ -1,13 +1,28 @@
 import random
 from tshrd.utils import weighted_choice
-from enum import IntEnum, auto
+from enum import IntEnum, Enum, auto
 import math
 
 
-PREFIXES = ('Bloody', 'Dirty', 'Shiny', 'Cursed', 'Blessed', 'Broken', 'Tarnished', 'Mastercraft', 'Rusty', 'Conqueror\'s')
-SUFFIXES = ('Of Pain', 'Of Doom', 'Of Chaos', 'Of Light')
+PREFIXES = ('Cursed', 'Blessed', 'Broken', 'Mastercraft', 'Heavy')
+SUFFIXES = ('of Pain', 'of Doom', 'of Adventuring', 'of Vampirism')
 WEAPONS = ('Sword', 'Dagger', 'Staff', 'Hammer', 'Mace', 'Flail')
 ARMORS = ('Chain Mail', 'Plate Mail', 'Scale Mail', 'Leather Jerkin', 'Cuirass')
+
+
+class WeaponPrefix(Enum):
+    Cursed = auto()
+    Blessed = auto()
+    Broken = auto()
+    Mastercraft = auto()
+    Heavy = auto()
+
+
+class WeaponSuffix(Enum):
+    Pain = auto()
+    Doom = auto()
+    Adventuring = auto()
+    Vampirism = auto()
 
 
 class Item(object):
@@ -64,34 +79,60 @@ class Weapon(Item):
 
         self._equipable = True
 
-        self.hit_chance_modifier = 0
-        self.crit_chance_modifier = 1
-        self.damage = 2
+        self.hit_chance_modifier: int = 0
+        self.crit_chance_modifier: int = 1
+        self.damage: int = 2
+
+        # life stealing properties of the weapon
+        self.life_steal_chance = 0
+        self.life_steal_percent = .5
+
+        self.prefix: WeaponPrefix = None
+        self.suffix: str = None
 
 
-def generate_random_weapon(level: int) -> Weapon:
+def generate_random_weapon(level: int, prefix_chance: int=50, suffix_chance: int=50) -> Weapon:
     weapon_type = random.choice(WEAPONS)
     weapon_name = weapon_type
-    prefix = random.choice(PREFIXES)
-    has_prefix = random.randint(1, 101) >= 50
+    # TODO: determine random prefix with a weighted system
+    prefix: WeaponPrefix = random.choice([pre for pre in WeaponPrefix])
+    has_prefix = random.randint(1, 101) <= prefix_chance
     if has_prefix:
-        weapon_name = f'{prefix} {weapon_name}'
-    has_suffix = random.randint(1, 101) >= 50
+        weapon_name = f'{prefix.name} {weapon_name}'
+    has_suffix = random.randint(1, 101) <= suffix_chance
+    # TODO: determine random suffix with a weighted system
+    suffix: WeaponSuffix = random.choice([suf for suf in WeaponSuffix])
     if has_suffix:
-        suffix = random.choice(SUFFIXES)
-        weapon_name = f'{weapon_name} {suffix}'
+        weapon_name = f'{weapon_name} of {suffix.name}'
 
     weapon = Weapon(weapon_name)
 
     base_damage = 2 * level
     damage = base_damage
     if has_prefix:
-        if prefix == 'Blessed':
+        weapon.prefix = prefix
+        if prefix == WeaponPrefix.Blessed:
+            # add bonus damage
             damage += level
-        elif prefix == 'Cursed':
+        elif prefix == WeaponPrefix.Cursed:
+            # reduce damage
             damage = max(math.ceil(base_damage / 2.0), damage - level)
-        elif prefix == 'Mastercraft':
+        elif prefix == WeaponPrefix.Mastercraft:
+            # increased crit range
             weapon.crit_chance_modifier = 5
+        elif prefix == WeaponPrefix.Heavy:
+            # decreased hit chance
+            weapon.hit_chance_modifier = -20
+        elif prefix == WeaponPrefix.Broken:
+            # weapon is basically useless
+            damage = level
+    if has_suffix:
+        weapon.suffix = suffix
+        if suffix == WeaponSuffix.Pain and (has_prefix is False or prefix != WeaponPrefix.Broken):
+            damage += base_damage
+        if suffix == WeaponSuffix.Vampirism:
+            # twenty percent chance of stealing 50% (default) of damage dealt as health
+            weapon.life_steal_chance = 20
 
     weapon.damage = damage
 

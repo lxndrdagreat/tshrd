@@ -2,7 +2,7 @@ import tdl
 from tshrd.state_handling import GameState, GameData
 from tshrd.monsters import create_monster_for_level
 from tshrd.characters import Character
-from tshrd.inventory import Inventory, Item
+from tshrd.inventory import Inventory, Item, WeaponSuffix
 from tshrd.utils import wait_for_keys
 from tshrd.combat import do_attack
 import random
@@ -10,12 +10,13 @@ import math
 
 
 def state(game: GameData, root_console: tdl.Console) -> GameState:
+
     if game.current_room.monster is None:
         monster = game.current_room.monster = create_monster_for_level(game.current_level)
     else:
         monster = game.current_room.monster
 
-    player = game.the_player
+    player: Character = game.the_player
     player_x = int(root_console.width / 2)
     player_y = 10
     monster_y = 0
@@ -103,6 +104,17 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             results = do_attack(player, monster)
             if not results.critical_miss:
                 game.log(f'...and hit for {results.damage} damage.')
+                # if the player's weapon has the "Vampiric" trait, heal the player (maybe)
+                if player.weapon and player.weapon.suffix == WeaponSuffix.Vampirism:
+                    did_vamp = random.randint(1, 101) <= player.weapon.life_steal_chance
+                    vamp_amount = int(math.ceil(player.weapon.life_steal_percent * results.damage))
+                    # TODO: decide whether or not to tell the player...
+                    player.heal(vamp_amount)
+                # if the player's weapon has the "Doom" trait, kill the monster if it only has 1 HP left
+                elif player.weapon and player.weapon.suffix == WeaponSuffix.Doom and monster.health == 1:
+                    monster.health = 0
+                    game.log(f'DOOM has befallen the {monster.name}!')
+
             else:
                 game.log(f'...and miss.')
         elif user_input == '1':
@@ -156,9 +168,13 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
     # killed the monster! yay!
     if monster.health <= 0:
-        text = f'You have killed the {monster.name}! You have been awarded {monster.experience} XP.'
+        experience_gained = monster.experience
+        if player.weapon and player.weapon.suffix == WeaponSuffix.Adventuring:
+            # 15% boost to XP gain
+            experience_gained = int(math.ceil(experience_gained * 1.15))
+        text = f'You have killed the {monster.name}! You have been awarded {experience_gained} XP.'
         game.log(text)
-        if player.grant_experience(monster.experience):
+        if player.grant_experience(experience_gained):
             # player leveled up!
             game.log(f'LEVEL UP! You have reached level {player.level}!', (255, 255, 0))
 
