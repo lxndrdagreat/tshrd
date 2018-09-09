@@ -4,25 +4,8 @@ from enum import IntEnum, Enum, auto
 import math
 
 
-PREFIXES = ('Cursed', 'Blessed', 'Broken', 'Mastercraft', 'Heavy')
-SUFFIXES = ('of Pain', 'of Doom', 'of Adventuring', 'of Vampirism')
-WEAPONS = ('Sword', 'Dagger', 'Staff', 'Hammer', 'Mace', 'Flail')
-ARMORS = ('Chain Mail', 'Plate Mail', 'Scale Mail', 'Leather Jerkin', 'Cuirass')
-
-
-class WeaponPrefix(Enum):
-    Cursed = auto()
-    Blessed = auto()
-    Broken = auto()
-    Mastercraft = auto()
-    Heavy = auto()
-
-
-class WeaponSuffix(Enum):
-    Pain = auto()
-    Doom = auto()
-    Adventuring = auto()
-    Vampirism = auto()
+WEAPON_TYPES = ('Sword', 'Dagger', 'Staff', 'Hammer', 'Mace', 'Flail')
+ARMOR_TYPES = ('Chain Mail', 'Plate Mail', 'Scale Mail', 'Leather Jerkin', 'Cuirass')
 
 
 class Item(object):
@@ -73,6 +56,21 @@ class Gold(Item):
         return '{} gold pieces'.format(self.amount)
 
 
+class WeaponPrefix(Enum):
+    Cursed = auto()
+    Blessed = auto()
+    Broken = auto()
+    Mastercraft = auto()
+    Heavy = auto()
+
+
+class WeaponSuffix(Enum):
+    Pain = auto()
+    Doom = auto()
+    Adventuring = auto()
+    Vampirism = auto()
+
+
 class Weapon(Item):
     def __init__(self, name: str, description: str=None):
         Item.__init__(self, name, description)
@@ -92,7 +90,7 @@ class Weapon(Item):
 
 
 def generate_random_weapon(level: int, prefix_chance: int=50, suffix_chance: int=50) -> Weapon:
-    weapon_type = random.choice(WEAPONS)
+    weapon_type = random.choice(WEAPON_TYPES)
     weapon_name = weapon_type
     # TODO: determine random prefix with a weighted system
     prefix: WeaponPrefix = random.choice([pre for pre in WeaponPrefix])
@@ -139,18 +137,58 @@ def generate_random_weapon(level: int, prefix_chance: int=50, suffix_chance: int
     return weapon
 
 
+class ArmorPrefix(Enum):
+    Swift = auto()
+    Dodging = auto()
+    Mastercraft = auto()
+
+
+class ArmorSuffix(Enum):
+    Adventuring = auto()
+    Fleeing = auto()
+
+
 class Armor(Item):
     def __init__(self, name: str, block: int=0, description: str=None):
         Item.__init__(self, name, description)
 
         self._equipable = True
         self.block = block
+        self.dodge_chance = 0
+        self.prefix: ArmorPrefix = None
+        self.suffix: ArmorSuffix = None
 
 
-def generate_random_armor(level: int) -> Armor:
-    name = '{} {} {}'.format(random.choice(PREFIXES), random.choice(ARMORS), random.choice(SUFFIXES)).strip()
+def generate_random_armor(level: int, prefix_chance: int=35, suffix_chance: int=20) -> Armor:
+    base_name = random.choice(ARMOR_TYPES)
 
-    armor = Armor(name)
+    has_prefix = random.randint(1, 101) <= prefix_chance
+    has_suffix = random.randint(1, 101) <= suffix_chance
+
+    # TODO determine prefix and suffix with a weighted system
+    prefix = None if not has_prefix else random.choice([pre for pre in ArmorPrefix])
+    suffix = None if not has_suffix else random.choice([suf for suf in ArmorSuffix])
+
+    name = base_name
+
+    block = level
+    dodge_chance = 0
+    if has_prefix:
+        name = f'{prefix.name} {name}'
+        if prefix == ArmorPrefix.Mastercraft:
+            # boost block
+            block += 2
+        elif prefix == ArmorPrefix.Dodging:
+            # give the armor a small amount of chance to dodge an attack entirely
+            dodge_chance = 10
+
+    if has_suffix:
+        name = f'{name} of {suffix.name}'
+
+    armor = Armor(name, block)
+    armor.dodge_chance = dodge_chance
+    armor.suffix = suffix
+    armor.prefix = prefix
 
     return armor
 

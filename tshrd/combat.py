@@ -8,7 +8,7 @@ class AttackResult:
         self.damage_blocked = 0
         self.defender_killed = False
         self.critical_hit = False
-        self.critical_miss = False
+        self.dodged = False
 
 
 def do_attack(attacker: Character, defender: Character) -> AttackResult:
@@ -17,10 +17,12 @@ def do_attack(attacker: Character, defender: Character) -> AttackResult:
 
     critical_chance = attacker.combined_crit_chance
     attack_chance = attacker.combined_hit_chance
+    dodge_chance = defender.combined_dodge_chance
 
     # roll for attack on a d100
     attack_roll = random.randint(1, 101)
-    did_hit = attack_roll <= attack_chance
+    dodged = random.randint(1, 101) <= dodge_chance
+    did_hit = attack_roll <= attack_chance and not dodged
     did_crit = attack_roll <= critical_chance
 
     damage_roll = 0
@@ -42,4 +44,5 @@ def do_attack(attacker: Character, defender: Character) -> AttackResult:
     attack_result.damage_blocked = defender.combined_block if defender.combined_block < damage_roll else damage_roll
     attack_result.defender_killed = defender.health <= 0
     attack_result.critical_hit = did_crit
+    attack_result.dodged = dodged
     return attack_result

@@ -172,4 +172,44 @@ critical range, making the wielder more likely to score a critical hit.
 
 ### Armor
 
-_Coming soon_
+These are the kinds of armor in the game:
+
+- Chain Mail
+- Plate Mail
+- Scale Mail
+- Leather Jerkin
+- Cuirass
+
+_Currently these different types of armor are cosmetic only._
+
+Armors have the follow attributes:
+
+**Block:** adds to the character's defense.
+
+#### Armor Suffixes
+
+##### Adventuring
+
+These armors boost the amount of _XP_ gained by the wearer when they
+kill monsters.
+
+##### Fleeing
+
+The armor of the coward. These armors will defend the wearer from attacks
+when they try to flee combat.
+
+#### Armor Prefixes
+
+##### Swift
+
+_Swift_ armor weighs less, allowing better movement. Player have a
+chance to consume no food while traveling between rooms.
+
+##### Dodging
+
+_Dodging_ armor gives the wearer a small chance to completely avoid an
+attack.
+
+##### Mastercraft
+
+A master armorer crafted this armor, and it absorbs more damage.

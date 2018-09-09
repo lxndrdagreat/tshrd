@@ -2,7 +2,7 @@ import tdl
 from tshrd.state_handling import GameState, GameData
 from tshrd.monsters import create_monster_for_level
 from tshrd.characters import Character
-from tshrd.inventory import Inventory, Item, WeaponSuffix
+from tshrd.inventory import Inventory, Item, WeaponSuffix, ArmorSuffix
 from tshrd.utils import wait_for_keys
 from tshrd.combat import do_attack
 import random
@@ -102,7 +102,7 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         if user_input == 'a':
             game.log(f'You attack the {monster.name}...')
             results = do_attack(player, monster)
-            if not results.critical_miss:
+            if not results.dodged:
                 game.log(f'...and hit for {results.damage} damage.')
                 # if the player's weapon has the "Vampiric" trait, heal the player (maybe)
                 if player.weapon and player.weapon.suffix == WeaponSuffix.Vampirism:
@@ -116,7 +116,8 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
                     game.log(f'DOOM has befallen the {monster.name}!')
 
             else:
-                game.log(f'...and miss.')
+                # enemy dodged the attack
+                game.log(f'...and miss as the {monster.name} dodges out of the way.')
         elif user_input == '1':
             pass
         elif user_input == '2':
@@ -138,12 +139,15 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
         # monster's turn
         # monster gets a turn even if the player succeeded at fleeing
-        results = do_attack(monster, player)
         game.log(f'The {monster.name} attacks...', (255, 0, 0))
-        if not results.critical_miss:
-            game.log(f'...and hits for {results.damage} damage')
+        if tried_to_flee and player.armor and player.armor.suffix == ArmorSuffix.Fleeing:
+            game.log(f'...and misses.')
         else:
-            game.log(f'...and misses you.')
+            results = do_attack(monster, player)
+            if not results.dodged:
+                game.log(f'...and hits for {results.damage} damage')
+            else:
+                game.log(f'...and misses you when you dodge out of the way.')
 
         if player.health <= 0:
             fighting = False
