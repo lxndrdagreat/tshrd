@@ -1,6 +1,8 @@
-from tshrd.characters import create_player
+from tshrd.characters import Character
+from tshrd.inventory import ArmorPrefix
 from tshrd.mapping import depth_first_build
 from enum import Enum, auto
+import random
 import tdl
 
 
@@ -33,8 +35,8 @@ class GameData:
         self.current_room = None
         self.previous_room = None
         self.current_level = 0
-
-        self.the_player = None
+        self.turn_count = 1
+        self.the_player: Character = None
 
         self.room_draw_width = 9
         self.room_draw_height = 9
@@ -71,6 +73,13 @@ class GameData:
             self.log(f'You have {self.the_player.food} remaining food.')
 
     def advance_turn(self):
+        self.turn_count += 1
+        if self.the_player.armor and self.the_player.armor.prefix == ArmorPrefix.Swift and random.randint(1, 101) <= 40:
+            text = 'You conserve your rations.'
+            if self.the_player.food <= 0:
+                text = 'You fight off the hunger.'
+            self.log(text)
+            return text
         if self.the_player.food > 0:
             self.the_player.food -= 1
             text = 'You eat 1 food.'
