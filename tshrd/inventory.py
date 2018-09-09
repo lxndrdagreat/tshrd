@@ -266,7 +266,7 @@ LOOT_TABLE_BY_LEVEL = (
         ('health_potion', 1.0),
         ('weapon', 1.0),
         ('armor', 1.0),
-        ('food', 1.0),
+        ('food', 2.0),
         ('gold', 1.0)
     ),
     (
@@ -307,7 +307,7 @@ def generate_random_loot(level: int, num_items: int=1) -> list:
             armor = generate_random_armor(level)
             loot.append(armor)
         elif kind == 'food':
-            amount = random.randint(max(1, level - 2), level + 3)
+            amount = random.randint(max(1, level - 1), level + 5)
             for a in range(1, amount + 1):
                 loot.append('Food')
         elif kind == 'gold':
