@@ -66,16 +66,34 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     info_con = tdl.Console(int(root_console.width / 2), root_console.height - 21)
     info_con.set_colors(fg=(220, 220, 220), bg=(0, 0, 50))
     info_con.clear()
-    info_con.draw_str(1, 1, 'MOVE:')
-    info_con.draw_str(1, 2, '[UP] North')
-    info_con.draw_str(1, 3, '[DOWN] South')
-    info_con.draw_str(1, 4, '[RIGHT] East')
-    info_con.draw_str(1, 5, '[LEFT] West')
-    info_con.draw_str(1, 7, 'MENU:')
-    info_con.draw_str(1, 8, '[m] Map')
-    info_con.draw_str(1, 9, '[i] Inventory')
-    info_con.draw_str(1, 10, '[c] Character')
-    info_con.draw_str(1, 11, '[ESC] Quit')
+    left = 1
+    top = 1
+    info_con.draw_str(left, top, 'MOVE:')
+    top += 1
+    info_con.draw_str(left, top, '[UP] North')
+    top += 1
+    info_con.draw_str(left, top, '[DOWN] South')
+    top += 1
+    info_con.draw_str(left, top, '[RIGHT] East')
+    top += 1
+    info_con.draw_str(left, top, '[LEFT] West')
+    top += 2
+    if len(game.the_player.get_explore_skills()) > 0:
+        info_con.draw_str(left, top, 'SKILLS:')
+        top += 1
+        for index, skill in enumerate(game.the_player.get_explore_skills(), 1):
+            info_con.draw_str(left, top, f'[{index}] {skill.name}')
+            top += 1
+        top += 1
+    info_con.draw_str(left, top, 'MENU:')
+    top += 1
+    info_con.draw_str(left, top, '[m] Map')
+    top += 1
+    info_con.draw_str(left, top, '[i] Inventory')
+    top += 1
+    info_con.draw_str(left, top, '[c] Character')
+    top += 1
+    info_con.draw_str(left, top, '[ESC] Quit')
     root_console.blit(info_con, int(root_console.width / 2), 0)
 
     # draw the log
@@ -92,7 +110,9 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         'ENTER',
         'i',
         'm',
-        'c'
+        'c',
+        '1',
+        '2'
     ])
 
     if user_input == 'UP':
@@ -121,5 +141,13 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
     elif user_input == 'ENTER':
         return GameState.NEXT_LEVEL
+
+    elif user_input == '1':
+        # TODO: handle skill usage
+        pass
+
+    elif user_input == '2':
+        # TODO: handle skill usage
+        pass
 
     return GameState.ROOM

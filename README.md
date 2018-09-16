@@ -213,3 +213,103 @@ attack.
 ##### Mastercraft
 
 A master armorer crafted this armor, and it absorbs more damage.
+
+## Skills
+
+Skills are special powers (or _moves_) that the player can use to aid his
+journey. Skills may be _active_ or _passive_. The player can only _know_ 
+two Skills at a time, so in order to learn a new skill he will have to 
+replace an old one.
+
+### Active Skills
+
+Active Skills are directly used by the player, assuming they are allowed
+to be used at that particular time.
+
+#### Wham!
+
+_Headbutt the enemy, dealing a little damage and possibly stunning_
+_the enemy for one turn._
+
+_Can only be used in combat._
+
+_3 turn cooldown._
+
+#### Gift of the Seer
+
+_Reveal the encounter of all rooms adjacent to the_
+_one you are currently in._
+
+_Cannot be used during an encounter._
+
+_10 turn cooldown._
+
+_Possibly have a more powerful version that reveals more of the map?_
+
+#### Shield
+
+_Raises your defenses, allowing you to completely block all damage for the_
+_next turn._
+
+_Can only be used in combat._
+
+_Does not use up your turn._
+
+_5 turn cooldown._
+
+#### Heal
+
+_Heal yourself for 30% of your maximum health._
+
+_Consumes 1 turn (so out of combat it will use food resource)._
+
+_2 turn cooldown._
+
+#### Prayer
+
+_Pray for a blessing, giving you an advantage on your next action._
+
+_Can only be used in combat._
+
+_Does not use up your turn._
+
+_3 turn cooldown._
+
+### Passive Skills
+
+Passive Skills have effects that occur based on the description of the skill.
+They do not have to be activated.
+
+#### Endurance
+
+_You handle the environment better and are able to spread your food rations_
+_out further. You consume less food._
+
+#### One More Step
+
+_While below 20% health, you slowly gain health._
+
+#### Blood of the Warrior
+
+_When you do damage to a monster, you deal extra damage._
+
+#### Lucky
+
+_The coin flips in your favor more often. Your chances for better loot_
+_have increased._
+
+#### Initiative
+
+_Your first attack on a monster does bonus damage._
+
+#### Cowardly
+
+_You can always flee a non-boss monster for free._
+
+#### The Best Defense...
+
+_...is a good offense. Your attacks do more damage, but your Block has been reduced._
+
+#### Perception
+
+_You gain an advantage against traps._

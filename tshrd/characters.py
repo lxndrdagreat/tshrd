@@ -1,5 +1,6 @@
 from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength, Item
 from tshrd.inventory import generate_random_weapon, generate_random_armor
+from tshrd.skills import Skill, SkillType, SKILL_GIFT_OF_THE_SEER
 
 
 class Character(object):
@@ -28,6 +29,9 @@ class Character(object):
         self.armor: Armor = None
 
         self.inventory: Inventory = Inventory()
+
+        # skills
+        self.skills: list = []
 
     def reset(self):
         self.health = self.max_health
@@ -128,6 +132,20 @@ class Character(object):
             damage += self.weapon.damage
         return damage
 
+    def get_combat_skills(self) -> list:
+        return [skill for skill in self.skills if skill.can_activate_in_combat]
+
+    def get_explore_skills(self) -> list:
+        return [skill for skill in self.skills if skill.can_activate_outside_encounter]
+
+    def reset_combat_skills(self):
+        for skill in self.get_combat_skills():
+            skill.reset_cooldown()
+
+    def tick_skill_cooldowns(self):
+        for skill in self.skills:
+            skill.tick_cooldown()
+
 
 def create_player(name: str='Player', power: int=4, block: int=2, health: int=10) -> Character:
     player = Character()
@@ -155,5 +173,8 @@ def create_player(name: str='Player', power: int=4, block: int=2, health: int=10
     player.experience_to_next_level = 10
 
     player.food = 20
+
+    # TODO: remove this temporary skill stuff later
+    player.skills.append(SKILL_GIFT_OF_THE_SEER)
 
     return player
