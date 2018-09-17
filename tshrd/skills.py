@@ -1,5 +1,4 @@
 from enum import Enum, auto
-from typing import Callable
 
 
 class SkillType(Enum):
@@ -8,20 +7,15 @@ class SkillType(Enum):
 
 
 class Skill:
-    def __init__(self, skill_type: SkillType=SkillType.Active, activate_in_combat: bool=False,
-                 activate_outside_encounter: bool=False, cooldown: int=1, on_activate: Callable=None):
-        self._skill_type: SkillType = skill_type
+    def __init__(self):
+        self._skill_type: SkillType = None
 
         self.name: str = None
         self.description: str = None
-        self._cooldown: int = cooldown
-        self._cooldown_counter: int = 0
 
         # use cases
-        self._activate_in_combat: bool = activate_in_combat
-        self._activate_outside_encounter: bool = activate_outside_encounter
-
-        self._activate: Callable = on_activate
+        self._activate_in_combat: bool = False
+        self._activate_outside_encounter: bool = False
 
     @property
     def type(self) -> SkillType:
@@ -35,13 +29,40 @@ class Skill:
     def can_activate_outside_encounter(self) -> bool:
         return self._activate_outside_encounter
 
-    @property
-    def cooldown_done(self) -> bool:
-        return self._cooldown_counter == 0
+    def ready(self) -> bool:
+        pass
+
+
+class ActiveSkill(Skill):
+    def __init__(self):
+        super().__init__()
+        self._skill_type = SkillType.Active
+
+    def activate(self, *args, **kwargs) -> bool:
+        pass
+
+
+class ExploreMixin:
+    def __init__(self):
+        super().__init__()
+        self._activate_outside_encounter = True
+
+
+class CombatMixin:
+    def __init__(self):
+        super().__init__()
+        self._activate_in_combat = True
+
+
+class TurnCooldownMixin:
+    def __init__(self):
+        super().__init__()
+        self._cooldown_turns: int = 1
+        self._cooldown_counter: int = 0
 
     @property
-    def cooldown_rate(self) -> int:
-        return self._cooldown
+    def cooldown_turns(self) -> int:
+        return self._cooldown_turns
 
     @property
     def cooldown_left(self) -> int:
@@ -50,18 +71,45 @@ class Skill:
     def reset_cooldown(self):
         self._cooldown_counter = 0
 
-    def tick_cooldown(self):
+    def tick(self):
         if self._cooldown_counter > 0:
             self._cooldown_counter -= 1
 
-    def activate(self, game_state):
-        if self._activate:
-            self._activate(self, game_state)
+    def start(self):
+        self._cooldown_counter = self._cooldown_turns
+
+    def ready(self) -> bool:
+        return self._cooldown_counter == 0
 
 
-def _gift_of_the_seer_activate(skill: Skill, game_state):
-    pass
+class GiftOfTheSeerSkill(TurnCooldownMixin, ExploreMixin, ActiveSkill):
+    def __init__(self):
+        super().__init__()
+        self.name = 'Gift of the Seer'
+        self.description = 'Reveal the encounter of all rooms adjacent to the one you are currently in.'
+        self._cooldown_turns = 10
+
+    def activate(self, game_data) -> bool:
+        if not self.ready():
+            return False
+
+        self.start()
+
+        # TODO: handle Gift of the Seer activation
+
+        return True
 
 
-SKILL_GIFT_OF_THE_SEER = Skill(SkillType.Active, False, True, 10, _gift_of_the_seer_activate)
-SKILL_GIFT_OF_THE_SEER.name = 'Gift of the Seer'
+class WhamCombatSkill(TurnCooldownMixin, CombatMixin, ActiveSkill):
+    def __init__(self):
+        super().__init__()
+        self.name = 'Wham'
+        self.description = 'Headbutt the enemy, dealing a little damage and possibly stunning the enemy for one turn.'
+        self._cooldown_turns = 3
+
+    def activate(self, game_data) -> bool:
+        if not self.ready():
+            return False
+        self.start()
+        # TODO: handle Wham skill activation
+        return True

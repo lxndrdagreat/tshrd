@@ -1,6 +1,6 @@
 from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength, Item
 from tshrd.inventory import generate_random_weapon, generate_random_armor
-from tshrd.skills import Skill, SkillType, SKILL_GIFT_OF_THE_SEER
+from tshrd.skills import Skill, SkillType, GiftOfTheSeerSkill
 
 
 class Character(object):
@@ -175,6 +175,6 @@ def create_player(name: str='Player', power: int=4, block: int=2, health: int=10
     player.food = 20
 
     # TODO: remove this temporary skill stuff later
-    player.skills.append(SKILL_GIFT_OF_THE_SEER)
+    player.skills.append(GiftOfTheSeerSkill())
 
     return player
