@@ -1,4 +1,7 @@
 from enum import Enum, auto
+from tshrd.mapping import MapInformation, Room
+from tshrd.status_effect import StatusEffectType
+import random
 
 
 class SkillType(Enum):
@@ -95,7 +98,18 @@ class GiftOfTheSeerSkill(TurnCooldownMixin, ExploreMixin, ActiveSkill):
 
         self.start()
 
-        # TODO: handle Gift of the Seer activation
+        the_map: MapInformation = game_data.current_map
+        current_room: Room = game_data.current_room
+        room_x = current_room.x
+        room_y = current_room.y
+
+        for x in range(max(0, room_x - 1), min(the_map.size[0], room_x + 2)):
+            for y in range(max(0, room_y - 1), min(the_map.size[1], room_y + 2)):
+                neighbor_room = the_map.room_at_position(x, y)
+                if neighbor_room:
+                    neighbor_room.discovered = True
+
+        game_data.log('You peer into the future and learn about the dungeon around you.')
 
         return True
 
@@ -111,5 +125,16 @@ class WhamCombatSkill(TurnCooldownMixin, CombatMixin, ActiveSkill):
         if not self.ready():
             return False
         self.start()
-        # TODO: handle Wham skill activation
+
+        current_room: Room = game_data.current_room
+        monster = current_room.monster
+
+        game_data.log(f'You headbutt the {monster.name}...')
+        # TODO: handle doing a little damage
+        # chance to stun
+        # TODO: change this percentage
+        if random.randint(1, 101) <= 100:
+            monster.apply_status_effect(StatusEffectType.Stunned, 2)
+            game_data.log('...and stun it!')
+
         return True

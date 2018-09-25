@@ -1,6 +1,7 @@
 import random
 from tshrd.utils import weighted_choice
 from enum import IntEnum, auto
+from typing import Union
 
 
 class EncounterType(IntEnum):
@@ -225,6 +226,11 @@ class MapInformation:
             else:
                 room.encounter = EncounterType.EMPTY
                 encounter_count[room.encounter] += 1
+
+    def room_at_position(self, x: int, y: int) -> Union[Room, None]:
+        if x < 0 or y < 0 or x >= self.size[0] or y >= self.size[1]:
+            return None
+        return next((r for r in self.rooms if r.x == x and r.y == y), None)
 
 
 def connect_rooms(start: tuple, end: tuple, grid: list, room_size: int):

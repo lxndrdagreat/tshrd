@@ -18,7 +18,7 @@ MONSTERS_BASE = (
         'name': 'Lizard',
         'tile': 'l',
         'mods': {
-            'power': 4,
+            'power': 3,
             'block': 2
         }
     },
@@ -116,7 +116,7 @@ def create_monster_for_level(level: int=1,
         if 'power' in monster_base['mods']:
             monster.power += monster_base['mods']['power']
         if 'block' in monster_base['mods']:
-            monster.power += monster_base['mods']['block']
+            monster.block += monster_base['mods']['block']
 
     prefix_modifier_chance = 65
     has_prefix_modifier = random.randint(1, 101) <= prefix_modifier_chance or force_prefix
@@ -130,7 +130,7 @@ def create_monster_for_level(level: int=1,
             if 'power' in prefix_mod['mods']:
                 monster.power += prefix_mod['mods']['power']
             if 'block' in prefix_mod['mods']:
-                monster.power += prefix_mod['mods']['block']
+                monster.block += prefix_mod['mods']['block']
 
     monster.name = f'{prefix_mod["name"] + " " if prefix_mod else ""}{monster_base["name"]}'
     monster.tile = monster_base['tile']

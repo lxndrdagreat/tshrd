@@ -1,6 +1,7 @@
 from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength, Item
 from tshrd.inventory import generate_random_weapon, generate_random_armor
-from tshrd.skills import Skill, SkillType, GiftOfTheSeerSkill
+from tshrd.skills import Skill, SkillType, GiftOfTheSeerSkill, WhamCombatSkill
+from tshrd.status_effect import StatusEffectType, AppliedStatusEffect
 
 
 class Character(object):
@@ -32,6 +33,9 @@ class Character(object):
 
         # skills
         self.skills: list = []
+
+        # status effects
+        self._status_effects: list = []
 
     def reset(self):
         self.health = self.max_health
@@ -83,6 +87,26 @@ class Character(object):
 
     def spend_points(self, points: int):
         self._unassigned_points = max(self._unassigned_points - points, 0)
+
+    def apply_status_effect(self, effect: StatusEffectType, duration: int):
+        existing = next((status for status in self._status_effects if status.status_effect == effect), None)
+        if existing:
+            existing.duration += duration
+            return
+        self._status_effects.append(AppliedStatusEffect(effect, duration))
+
+    def has_status_effect(self, effect: StatusEffectType) -> bool:
+        return next((applied for applied in self._status_effects if applied.status_effect == effect), None) is not None
+
+    def tick_status_effects(self):
+        for status_effect in self._status_effects:
+            # TODO: handle dangerous status effects
+            status_effect.tick()
+        self._status_effects = [active_status for active_status in self._status_effects if not active_status.is_done()]
+
+    @property
+    def applied_status_effects(self) -> list:
+        return self._status_effects
 
     @property
     def unspent_points(self) -> int:
@@ -176,5 +200,6 @@ def create_player(name: str='Player', power: int=4, block: int=2, health: int=10
 
     # TODO: remove this temporary skill stuff later
     player.skills.append(GiftOfTheSeerSkill())
+    player.skills.append(WhamCombatSkill())
 
     return player

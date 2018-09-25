@@ -1,6 +1,7 @@
 from tshrd.characters import Character
 from tshrd.inventory import ArmorPrefix
 from tshrd.mapping import depth_first_build
+from tshrd.skills import TurnCooldownMixin
 from enum import Enum, auto
 import random
 import tdl
@@ -74,6 +75,12 @@ class GameData:
 
     def advance_turn(self):
         self.turn_count += 1
+
+        for skill in self.the_player.get_explore_skills():
+            # if the skill has a cooldown...
+            if isinstance(skill, TurnCooldownMixin):
+                skill.tick()
+
         if self.the_player.armor and self.the_player.armor.prefix == ArmorPrefix.Swift and random.randint(1, 101) <= 40:
             text = 'You conserve your rations.'
             if self.the_player.food <= 0:

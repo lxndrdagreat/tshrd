@@ -93,7 +93,7 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         root_console.blit(map_console, 0, 0, 30, 30, src_x, src_y, 1.0, 0.0)
 
         tdl.flush()
-        response = wait_for_keys(['ESCAPE', 'SPACE', 'ENTER', 'm', 'UP', 'DOWN', 'LEFT', 'RIGHT'])
+        response = wait_for_keys(['ESCAPE', 'SPACE', 'ENTER', 'm', 'UP', 'DOWN', 'LEFT', 'RIGHT', '0'])
         if response in ['ESCAPE', 'SPACE', 'm']:
             break
         # scroll the map
@@ -113,5 +113,10 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             # recenter the map
             map_center_x = game.current_room.x * (room_size + spacing) + spacing
             map_center_y = game.current_room.y * (room_size + spacing) + spacing
+        elif response == '0':
+            # TODO: remove this cheat
+            # reveal entire map
+            for room in the_map.rooms:
+                room.discovered = True
 
     return GameState.ROOM

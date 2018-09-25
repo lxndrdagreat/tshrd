@@ -3,6 +3,7 @@ import math
 from tshrd.utils import wait_for_keys, draw_player_status_bar
 from tshrd.state_handling import GameData, GameState
 from tshrd.mapping import EncounterType
+from tshrd.skills import ActiveSkill, TurnCooldownMixin
 
 
 def state(game: GameData, root_console: tdl.Console) -> GameState:
@@ -82,7 +83,11 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         info_con.draw_str(left, top, 'SKILLS:')
         top += 1
         for index, skill in enumerate(game.the_player.get_explore_skills(), 1):
-            info_con.draw_str(left, top, f'[{index}] {skill.name}')
+            skill_text = f'{skill.name}'
+            if not skill.ready():
+                skill_text = f'{skill_text} ({skill.cooldown_left} turns)'
+
+            info_con.draw_str(left, top, f'[{index}] {skill_text}')
             top += 1
         top += 1
     info_con.draw_str(left, top, 'MENU:')
@@ -142,12 +147,16 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
     elif user_input == 'ENTER':
         return GameState.NEXT_LEVEL
 
-    elif user_input == '1':
-        # TODO: handle skill usage
-        pass
+    elif user_input == '1' and len(game.the_player.get_explore_skills()) > 0:
+        # User skill 1
+        skill: ActiveSkill = game.the_player.get_explore_skills()[0]
+        if skill.ready():
+            skill.activate(game)
 
-    elif user_input == '2':
-        # TODO: handle skill usage
-        pass
+    elif user_input == '2' and len(game.the_player.get_explore_skills()) > 1:
+        # User skill 2
+        skill: ActiveSkill = game.the_player.get_explore_skills()[1]
+        if skill.ready():
+            skill.activate(game)
 
     return GameState.ROOM
