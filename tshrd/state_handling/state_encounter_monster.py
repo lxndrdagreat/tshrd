@@ -20,7 +20,6 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
     player: Character = game.the_player
     player_x = int(root_console.width / 2)
-    monster_y = 0
     monster_x = player_x
     top = 5
     left = 5
@@ -34,18 +33,24 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
     game.log(f'You encounter a {monster.name}!', (255, 0, 0))
 
-    fighting = True
-    did_flee = False
+    fighting: bool = True
+    did_flee: bool = False
+    player_used_turn: bool = False
 
     player_combat_skills = player.get_combat_skills()
 
     while fighting:
 
-        # tick status effects
-        player.tick_status_effects()
-        monster.tick_status_effects()
+        if player_used_turn:
+            # tick status effects
+            player.tick_status_effects()
+            monster.tick_status_effects()
 
-        # clear
+            # tick skills
+            player.tick_skill_cooldowns()
+            monster.tick_skill_cooldowns()
+
+        # clear console
         root_console.clear()
 
         # draw room
@@ -84,11 +89,18 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         # draw the log
         game.draw_log(root_console)
 
-        tried_to_flee = False
-
         # Draw Monster Information
+        monster_y = 0
         root_console.draw_str(monster_x, monster_y, f'{monster.name}')
-        root_console.draw_str(monster_x, monster_y + 1, f'HP: {monster.health} / {monster.max_health}')
+        monster_y += 1
+        root_console.draw_str(monster_x, monster_y, f'HP: {monster.health} / {monster.max_health}')
+        monster_y += 1
+        for status in monster.active_status_effects:
+            # list each status effect
+            root_console.draw_str(monster_x, monster_y,
+                                  f'({status.status_effect.name} x{status.duration})',
+                                  fg=(255, 255, 0))
+            monster_y += 1
 
         # Draw Player Information
         player_y = 10
@@ -96,6 +108,14 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         player_y += 1
         root_console.draw_str(player_x, player_y, f'HP: {player.health} / {player.max_health}')
         player_y += 1
+        for status in player.active_status_effects:
+            # list each status effect
+            root_console.draw_str(player_x, player_y,
+                                  f'({status.status_effect.name} x{status.duration})',
+                                  fg=(255, 0, 0))
+            player_y += 1
+
+        player_y += 2
         root_console.draw_str(player_x, player_y, '[A] Attack')
         player_y += 1
 
@@ -113,13 +133,25 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
 
         tdl.flush()
 
-        user_input = wait_for_keys(['ESCAPE', 'a', '1', '2', 'f', 'u'])
+        # only allow available keys
+        available_keys = ['ESCAPE', 'a', 'f', 'u']
+        if len(player_combat_skills) >= 1 and player_combat_skills[0].ready():
+            available_keys.append('1')
+        if len(player_combat_skills) >= 2 and player_combat_skills[1].ready():
+            available_keys.append('2')
+        user_input = wait_for_keys(available_keys)
 
         if user_input == 'ESCAPE':
             return GameState.CLOSE
 
+        # will be set to True if the player attempts to flee below
+        tried_to_flee: bool = False
+        player_used_turn = False
+
+        # ATTACK
         if user_input == 'a':
             game.log(f'You attack the {monster.name}...')
+            player_used_turn = True
             results = do_attack(player, monster)
             if not results.dodged:
                 game.log(f'...and hit for {results.damage} damage.')
@@ -137,56 +169,65 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
             else:
                 # enemy dodged the attack
                 game.log(f'...and miss as the {monster.name} dodges out of the way.')
+        # USE SKILL 1
         elif user_input == '1' and len(player_combat_skills) > 0:
             skill: ActiveSkill = player_combat_skills[0]
             if skill.ready():
-                skill.activate(game)
-
+                if skill.activate(game):
+                    player_used_turn = skill.uses_turn
+        # USE SKILL 2
         elif user_input == '2' and len(player_combat_skills) > 1:
             skill: ActiveSkill = player_combat_skills[1]
             if skill.ready():
-                skill.activate(game)
+                if skill.activate(game):
+                    player_used_turn = skill.uses_turn
+        # ATTEMPT TO FLEE THE MONSTER
         elif user_input == 'f':
+            player_used_turn = True
             game.log('You attempt to flee.')
             tried_to_flee = True
             chance_to_flee = 80
             roll = random.randrange(0, 100)
             if roll <= chance_to_flee:
                 did_flee = True
+        # OPEN INVENTORY
         elif user_input == 'u':
-            state_usable_inventory(game, root_console)
+            # only uses a turn if the player uses an item
+            player_used_turn = state_usable_inventory(game, root_console)
 
+        # if the monster is dead, combat is over
         if monster.health <= 0:
             fighting = False
             game.log(f'You slay the {monster.name}!')
             continue
 
-        # monster's turn
+        # if monster is alive, it takes a turn (assuming the player did a "used_turn" action)
         # monster gets a turn even if the player succeeded at fleeing
         # make sure the monster is ABLE to attack
-        if not monster.has_status_effect(StatusEffectType.Stunned):
-            game.log(f'The {monster.name} attacks...', (255, 0, 0))
-            if tried_to_flee and player.armor and player.armor.suffix == ArmorSuffix.Fleeing:
-                game.log(f'...and misses.')
-            else:
-                results = do_attack(monster, player)
-                if not results.dodged:
-                    game.log(f'...and hits for {results.damage} damage')
+        if player_used_turn:
+            if not monster.has_status_effect(StatusEffectType.Stunned):
+                game.log(f'The {monster.name} attacks...', (255, 0, 0))
+                if tried_to_flee and player.armor and player.armor.suffix == ArmorSuffix.Fleeing:
+                    game.log(f'...and misses.')
                 else:
-                    game.log(f'...and misses you when you dodge out of the way.')
+                    results = do_attack(monster, player)
+                    if not results.dodged:
+                        game.log(f'...and hits for {results.damage} damage')
+                    else:
+                        game.log(f'...and misses you when you dodge out of the way.')
 
-            if player.health <= 0:
-                fighting = False
-                # cannot flee if you are dead, Jim
-                did_flee = False
-                continue
-            elif tried_to_flee and not did_flee:
-                game.log("You failed to run away", (255, 0, 0))
-            elif tried_to_flee and did_flee:
-                fighting = False
-                continue
-        else:
-            game.log(f'The {monster.name} is STUNNED and cannot attack.')
+                if player.health <= 0:
+                    fighting = False
+                    # cannot flee if you are dead, Jim
+                    did_flee = False
+                    continue
+                elif tried_to_flee and not did_flee:
+                    game.log("You failed to run away", (255, 0, 0))
+                elif tried_to_flee and did_flee:
+                    fighting = False
+                    continue
+            else:
+                game.log(f'The {monster.name} is STUNNED and cannot attack.')
 
     if did_flee:
         # fleeing does not mark the encounter as complete

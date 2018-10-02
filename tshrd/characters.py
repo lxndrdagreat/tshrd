@@ -1,6 +1,6 @@
 from tshrd.inventory import Inventory, Weapon, Armor, HealthPotion, PotionStrength, Item
 from tshrd.inventory import generate_random_weapon, generate_random_armor
-from tshrd.skills import Skill, SkillType, GiftOfTheSeerSkill, WhamCombatSkill
+from tshrd.skills import Skill, SkillType, GiftOfTheSeerSkill, WhamCombatSkill, CureWoundsSkill
 from tshrd.status_effect import StatusEffectType, AppliedStatusEffect
 
 
@@ -52,11 +52,6 @@ class Character(object):
         self._unassigned_points += 2
         self.experience_to_next_level = int(self.experience_to_next_level * 2.5)
 
-    def take_damage(self, amount: int) -> int:
-        amount = amount - self.get_block()
-        self.health -= amount
-        return amount
-
     def heal(self, amount: int) -> int:
         # Heal the character for the given amount. Cannot go above max health.
         new_health = min(self.max_health, self.health + amount)
@@ -103,6 +98,10 @@ class Character(object):
             # TODO: handle dangerous status effects
             status_effect.tick()
         self._status_effects = [active_status for active_status in self._status_effects if not active_status.is_done()]
+
+    @property
+    def active_status_effects(self):
+        return self._status_effects
 
     @property
     def applied_status_effects(self) -> list:
@@ -168,7 +167,7 @@ class Character(object):
 
     def tick_skill_cooldowns(self):
         for skill in self.skills:
-            skill.tick_cooldown()
+            skill.tick()
 
 
 def create_player(name: str='Player', power: int=4, block: int=2, health: int=10) -> Character:
@@ -200,6 +199,7 @@ def create_player(name: str='Player', power: int=4, block: int=2, health: int=10
 
     # TODO: remove this temporary skill stuff later
     player.skills.append(GiftOfTheSeerSkill())
+    player.skills.append(CureWoundsSkill())
     player.skills.append(WhamCombatSkill())
 
     return player

@@ -257,13 +257,13 @@ _Does not use up your turn._
 
 _5 turn cooldown._
 
-#### Heal
+#### Cure Wounds
 
 _Heal yourself for 30% of your maximum health._
 
 _Consumes 1 turn (so out of combat it will use food resource)._
 
-_2 turn cooldown._
+_4 turn cooldown._
 
 #### Prayer
 

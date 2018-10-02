@@ -2,6 +2,7 @@ from enum import Enum, auto
 from tshrd.mapping import MapInformation, Room
 from tshrd.status_effect import StatusEffectType
 import random
+import math
 
 
 class SkillType(Enum):
@@ -45,6 +46,12 @@ class ActiveSkill(Skill):
         pass
 
 
+class PassiveSkill(Skill):
+    def __init__(self):
+        super().__init__()
+        self._skill_type = SkillType.Passive
+
+
 class ExploreMixin:
     def __init__(self):
         super().__init__()
@@ -57,11 +64,22 @@ class CombatMixin:
         self._activate_in_combat = True
 
 
+class OncePerCombatMixin:
+    def __init__(self):
+        super().__init__()
+        self._used_this_combat = False
+
+    def activate(self, *args, **kwargs) -> bool:
+        pass
+
+
 class TurnCooldownMixin:
     def __init__(self):
         super().__init__()
         self._cooldown_turns: int = 1
         self._cooldown_counter: int = 0
+        # does using this skill consume a turn
+        self._uses_turn: bool = False
 
     @property
     def cooldown_turns(self) -> int:
@@ -70,6 +88,10 @@ class TurnCooldownMixin:
     @property
     def cooldown_left(self) -> int:
         return self._cooldown_counter
+
+    @property
+    def uses_turn(self) -> bool:
+        return self._uses_turn
 
     def reset_cooldown(self):
         self._cooldown_counter = 0
@@ -120,6 +142,7 @@ class WhamCombatSkill(TurnCooldownMixin, CombatMixin, ActiveSkill):
         self.name = 'Wham'
         self.description = 'Headbutt the enemy, dealing a little damage and possibly stunning the enemy for one turn.'
         self._cooldown_turns = 3
+        self._uses_turn = True
 
     def activate(self, game_data) -> bool:
         if not self.ready():
@@ -129,12 +152,46 @@ class WhamCombatSkill(TurnCooldownMixin, CombatMixin, ActiveSkill):
         current_room: Room = game_data.current_room
         monster = current_room.monster
 
-        game_data.log(f'You headbutt the {monster.name}...')
-        # TODO: handle doing a little damage
-        # chance to stun
-        # TODO: change this percentage
-        if random.randint(1, 101) <= 100:
-            monster.apply_status_effect(StatusEffectType.Stunned, 2)
-            game_data.log('...and stun it!')
+        game_data.log(f'You headbutt the {monster.name} for 1 damage...')
+        monster.health -= 1
+        if monster.health > 0:
+            # chance to stun
+            # TODO: change this percentage
+            if random.randint(1, 101) <= 100:
+                monster.apply_status_effect(StatusEffectType.Stunned, 2)
+                game_data.log('...and stun it!')
+        else:
+            # monster died to a head butt...
+            game_data.log('...and kill it!')
 
         return True
+
+
+class CureWoundsSkill(TurnCooldownMixin, CombatMixin, ExploreMixin, ActiveSkill):
+    def __init__(self):
+        super().__init__()
+        self.name = 'Cure Wounds'
+        self.description = 'Heals for 30% of the caster\'s health.'
+        self._cooldown_turns = 4
+        self._uses_turn = True
+
+    def activate(self, game_data: 'GameData') -> bool:
+        if not self.ready():
+            return False
+        self.start()
+
+        character: 'Character' = game_data.the_player
+
+        heal = character.heal(int(math.ceil(character.max_health * 0.3)))
+
+        # TODO: handle monsters healing themselves...
+        game_data.log(f'You heal for {heal} hit points.')
+
+        return True
+
+
+class InitiativePassiveSkill(OncePerCombatMixin, CombatMixin, PassiveSkill):
+    def __init__(self):
+        super().__init__()
+        self.name = 'Initiative'
+        self.description = 'Your first attack on a monster does bonus damage.'

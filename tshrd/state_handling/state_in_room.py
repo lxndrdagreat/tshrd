@@ -151,12 +151,16 @@ def state(game: GameData, root_console: tdl.Console) -> GameState:
         # User skill 1
         skill: ActiveSkill = game.the_player.get_explore_skills()[0]
         if skill.ready():
-            skill.activate(game)
+            if skill.activate(game):
+                if skill.uses_turn:
+                    game.advance_turn()
 
     elif user_input == '2' and len(game.the_player.get_explore_skills()) > 1:
         # User skill 2
         skill: ActiveSkill = game.the_player.get_explore_skills()[1]
         if skill.ready():
-            skill.activate(game)
+            if skill.activate(game):
+                if skill.uses_turn:
+                    game.advance_turn()
 
     return GameState.ROOM

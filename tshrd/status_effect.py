@@ -4,6 +4,7 @@ from enum import Enum, auto
 class StatusEffectType(Enum):
     Stunned = auto()
     Shielded = auto()
+    Poisoned = auto()
 
 
 class AppliedStatusEffect:
